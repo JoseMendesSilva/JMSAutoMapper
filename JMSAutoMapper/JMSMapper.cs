@@ -412,7 +412,6 @@ namespace JMSAutoMapper
     {
         private static MapperConfiguration? _staticConfig;
         private readonly MapperConfiguration? _instanceConfig;
-        private readonly Action<string, Exception>? _logger;
 
         public JMSMapper(MapperConfiguration? config = null, Action<string, Exception>? logger = null) : base(logger)
         {
@@ -476,19 +475,46 @@ namespace JMSAutoMapper
             var sourceVar = Expression.Variable(sourceType, "source");
             var resultVar = Expression.Variable(targetType, "result");
 
+            var sourceProperties = GetProperties(sourceType);
+            var targetProperties = GetProperties(targetType);
+
             var expressions = new List<Expression>
             {
                 Expression.Assign(sourceVar, Expression.Convert(sourceParam, sourceType))
             };
 
-            var constructor = targetType.GetConstructor(Type.EmptyTypes);
+            // Try to find a suitable constructor
+            ConstructorInfo? bestConstructor = null;
+            var constructors = targetType.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                .OrderByDescending(c => c.GetParameters().Length);
+
+            foreach (var ctor in constructors)
+            {
+                var parameters = ctor.GetParameters();
+                if (parameters.All(p => sourceProperties.Any(sp => string.Equals(sp.Name, p.Name, StringComparison.OrdinalIgnoreCase) && p.ParameterType.IsAssignableFrom(sp.PropertyType))))
+                {
+                    bestConstructor = ctor;
+                    break;
+                }
+            }
+
             if (targetType.IsValueType)
             {
                 expressions.Add(Expression.Assign(resultVar, Expression.New(targetType)));
             }
-            else if (constructor != null)
+            else if (bestConstructor != null)
             {
-                expressions.Add(Expression.Assign(resultVar, Expression.New(constructor)));
+                var constructorParameters = bestConstructor.GetParameters();
+                var arguments = new Expression[constructorParameters.Length];
+
+                for (int i = 0; i < constructorParameters.Length; i++)
+                {
+                    var param = constructorParameters[i];
+                    var sourceProperty = sourceProperties.First(sp => string.Equals(sp.Name, param.Name, StringComparison.OrdinalIgnoreCase));
+                    var sourcePropertyAccess = Expression.Property(sourceVar, sourceProperty);
+                    arguments[i] = Expression.Convert(sourcePropertyAccess, param.ParameterType);
+                }
+                expressions.Add(Expression.Assign(resultVar, Expression.New(bestConstructor, arguments)));
             }
             else
             {
@@ -509,9 +535,6 @@ namespace JMSAutoMapper
             var customMappings = config?.CustomMappings;
             var conditionalMappings = config?.ConditionalMappings;
             var ignoredProperties = config?.IgnoredProperties;
-
-            var sourceProperties = GetProperties(sourceType);
-            var targetProperties = GetProperties(targetType);
 
             var convertValueMethod = typeof(MapperBase).GetMethod("ConvertValue", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var mapCollectionHelperMethod = typeof(JMSMapper).GetMethod("MapCollectionHelper", BindingFlags.Instance | BindingFlags.NonPublic)!;
