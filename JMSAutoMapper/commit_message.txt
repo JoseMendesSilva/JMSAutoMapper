@@ -1,6 +1,0 @@
-Feat: Add performance benchmarks
-
-- Created JMSAutoMapper.Benchmarks project.
-- Added BenchmarkDotNet and AutoMapper NuGet packages.
-- Implemented simple mapping benchmarks for JMSAutoMapper, AutoMapper, and manual mapping.
-- Updated Checklist.md.

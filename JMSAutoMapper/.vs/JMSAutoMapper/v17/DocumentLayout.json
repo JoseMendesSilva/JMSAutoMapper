@@ -12,8 +12,8 @@
       "AbsoluteMoniker": "D:0:0:{493AE5BA-1229-461E-9A45-8E713AF2E470}|..\\JMSAutoMapperDemo\\JMSAutoMapperDemo.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapperdemo\\models\\sourceclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0C446A30-5F15-4FAC-8E49-209CBF7741BA}|JMSAutoMapper.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapper\\jmsmapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0C446A30-5F15-4FAC-8E49-209CBF7741BA}|JMSAutoMapper.csproj|solutionrelative:jmsmapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D075F665-D36C-4332-97DB-E2C7F6BF25C0}|JMSAutoMapper.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapper\\jmsmapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D075F665-D36C-4332-97DB-E2C7F6BF25C0}|JMSAutoMapper.csproj|solutionrelative:jmsmapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -125,7 +125,7 @@
               "RelativeDocumentMoniker": "..\\JMSAutoMapperDemo\\Program.cs",
               "ToolTip": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Program.cs",
               "RelativeToolTip": "..\\JMSAutoMapperDemo\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAADkAAAAAAAAAAAAAAAUAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-15T11:21:21.992Z",
               "EditorCaption": ""

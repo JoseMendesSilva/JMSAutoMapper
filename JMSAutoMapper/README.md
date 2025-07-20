@@ -129,6 +129,226 @@ JMSAutoMapper provides an extension method for easy integration with `Microsoft.
     }
     ```
 
+## Advanced Usage Scenarios
+
+### Mapping Nested Objects
+
+JMSAutoMapper can automatically map nested objects, provided that mappings for the nested types are also configured.
+
+```csharp
+public class OrderSource
+{
+    public int OrderId { get; set; }
+    public CustomerSource Customer { get; set; }
+}
+
+public class CustomerSource
+{
+    public int CustomerId { get; set; }
+    public string Name { get; set; }
+}
+
+public class OrderDestination
+{
+    public int OrderId { get; set; }
+    public CustomerDestination Customer { get; set; }
+}
+
+public class CustomerDestination
+{
+    public int CustomerId { get; set; }
+    public string FullName { get; set; }
+}
+
+// Configuration
+var config = new MapperConfiguration();
+config.CreateMap<CustomerSource, CustomerDestination>()
+      .ForMember("FullName", src => src.Name); // Custom mapping for nested object
+config.CreateMap<OrderSource, OrderDestination>();
+
+var mapper = new JMSMapper(config);
+
+// Usage
+var orderSource = new OrderSource
+{
+    OrderId = 1,
+    Customer = new CustomerSource { CustomerId = 101, Name = "John Doe" }
+};
+
+var orderDestination = mapper.Map<OrderDestination>(orderSource);
+// orderDestination.Customer.FullName will be "John Doe"
+```
+
+### Mapping Collections
+
+Mapping collections is straightforward. JMSAutoMapper handles `IEnumerable<T>`, `List<T>`, and arrays.
+
+```csharp
+public class ProductSource
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
+
+public class ProductDestination
+{
+    public int ProductId { get; set; }
+    public string ProductName { get; set; }
+}
+
+// Configuration
+var config = new MapperConfiguration();
+config.CreateMap<ProductSource, ProductDestination>()
+      .ForMember("ProductId", "Id")
+      .ForMember("ProductName", "Name");
+
+var mapper = new JMSMapper(config);
+
+// Usage
+var productSources = new List<ProductSource>
+{
+    new ProductSource { Id = 1, Name = "Laptop" },
+    new ProductSource { Id = 2, Name = "Mouse" }
+};
+
+var productDestinations = mapper.Map<IEnumerable<ProductDestination>>(productSources);
+// productDestinations will contain two ProductDestination objects
+```
+
+### Mapping from Different Source Types to the Same Destination Type
+
+You can map multiple source types to a single destination type.
+
+```csharp
+public class UserProfileSource
+{
+    public string UserName { get; set; }
+    public string EmailAddress { get; set; }
+}
+
+public class EmployeeSource
+{
+    public string EmployeeName { get; set; }
+    public string WorkEmail { get; set; }
+}
+
+public class ContactDestination
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+}
+
+// Configuration
+var config = new MapperConfiguration();
+config.CreateMap<UserProfileSource, ContactDestination>()
+      .ForMember("Name", "UserName")
+      .ForMember("Email", "EmailAddress");
+
+config.CreateMap<EmployeeSource, ContactDestination>()
+      .ForMember("Name", "EmployeeName")
+      .ForMember("Email", "WorkEmail");
+
+var mapper = new JMSMapper(config);
+
+// Usage
+var userProfile = new UserProfileSource { UserName = "Alice", EmailAddress = "alice@example.com" };
+var contactFromProfile = mapper.Map<ContactDestination>(userProfile);
+
+var employee = new EmployeeSource { EmployeeName = "Bob", WorkEmail = "bob@company.com" };
+var contactFromEmployee = mapper.Map<ContactDestination>(employee);
+```
+
+## Relational Mapping
+
+JMSAutoMapper can also facilitate mapping between objects that represent relational data, such as mapping a database entity to a DTO (Data Transfer Object) and vice-versa, including handling relationships.
+
+```csharp
+// Example: Mapping a simple relational entity to a DTO
+public class UserEntity
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public AddressEntity Address { get; set; } // One-to-one relationship
+}
+
+public class AddressEntity
+{
+    public int Id { get; set; }
+    public string Street { get; set; }
+    public string City { get; set; }
+}
+
+public class UserDto
+{
+    public int UserId { get; set; }
+    public string FullName { get; set; }
+    public string UserStreet { get; set; }
+    public string UserCity { get; set; }
+}
+
+// Configuration
+var config = new MapperConfiguration();
+config.CreateMap<UserEntity, UserDto>()
+      .ForMember("UserId", "Id")
+      .ForMember("FullName", src => $"{src.FirstName} {src.LastName}")
+      .ForMember("UserStreet", src => src.Address.Street) // Mapping nested property
+      .ForMember("UserCity", src => src.Address.City);    // Mapping nested property
+
+config.CreateMap<AddressEntity, UserDto>(); // You might also map AddressEntity directly if needed
+
+var mapper = new JMSMapper(config);
+
+// Usage
+var userEntity = new UserEntity
+{
+    Id = 1,
+    FirstName = "Jane",
+    LastName = "Doe",
+    Address = new AddressEntity { Id = 10, Street = "123 Main St", City = "Anytown" }
+};
+
+var userDto = mapper.Map<UserDto>(userEntity);
+// userDto.UserId will be 1
+// userDto.FullName will be "Jane Doe"
+// userDto.UserStreet will be "123 Main St"
+// userDto.UserCity will be "Anytown"
+```
+
+## Detailed API Reference
+
+### `JMSMapper` Class
+
+The `JMSMapper` class is the core of the mapping engine. It's responsible for performing the actual object-to-object mapping based on the configured mappings.
+
+*   **Constructors:**
+    *   `JMSMapper()`: Initializes a new instance of the `JMSMapper` with a default, empty configuration.
+    *   `JMSMapper(MapperConfiguration configuration)`: Initializes a new instance of the `JMSMapper` with the specified `MapperConfiguration`.
+
+*   **Methods:**
+    *   `<TDestination> Map<TDestination>(object source)`: Maps a source object to a new instance of the specified destination type.
+    *   `<TSource, TDestination> Map(TSource source, TDestination destination)`: Maps a source object to an existing destination object. This is useful for updating existing objects.
+
+### `MapperConfiguration` Class
+
+The `MapperConfiguration` class is used to define and manage the mapping configurations for your application.
+
+*   **Constructors:**
+    *   `MapperConfiguration()`: Initializes a new instance of the `MapperConfiguration`.
+
+*   **Methods:**
+    *   `<TSource, TDestination> IMappingExpression<TSource, TDestination> CreateMap()`: Creates a new mapping configuration between the specified source and destination types. This method returns an `IMappingExpression` object, which allows for fluent configuration of the mapping.
+
+### `IMappingExpression<TSource, TDestination>` Interface
+
+The `IMappingExpression` interface provides a fluent API for configuring individual mappings between a source and a destination type.
+
+*   **Methods:**
+    *   `IMappingExpression<TSource, TDestination> ForMember(string destinationMemberName, string sourceMemberName)`: Configures a custom mapping for a specific member (property) in the destination type, specifying the corresponding member name in the source type.
+    *   `IMappingExpression<TSource, TDestination> ForMember<TSourceMember>(string destinationMemberName, Expression<Func<TSource, TSourceMember>> valueResolver)`: Configures a custom mapping for a specific member in the destination type using a custom value resolver (a lambda expression) to determine the value from the source object.
+    *   `IMappingExpression<TSource, TDestination> ForMember<TSourceMember>(string destinationMemberName, string sourceMemberName, Expression<Func<TSource, bool>> condition)`: Configures a conditional mapping for a specific member. The mapping will only occur if the provided condition (a lambda expression) evaluates to `true`.
+    *   `IMappingExpression<TSource, TDestination> ReverseMap()`: Configures a reverse mapping, allowing you to map from the destination type back to the source type with the same configuration.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue on GitHub.
