@@ -1,1 +1,5 @@
-Add: .gitignore file for .NET, C#, and Visual Studio 2022
+Feat: Implement global naming convention configuration
+
+- Added NamingConvention property to MapperConfiguration.
+- Updated GetMappedPropertyName to use the global naming convention.
+- Updated Checklist.md.

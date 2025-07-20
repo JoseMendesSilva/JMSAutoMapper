@@ -17,7 +17,7 @@ using System.Reflection;
     "elacionais. Este pacote é um pacote Demo, em sua versão atual, e pode se usado l" +
     "ivremente, desde de que respeito os direitos autorais."))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.2.3")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.8+2fd03d6b4b24f5bb052d190bd6f8c8477196fa17")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.8+a9e198c00f38899e70c18e4d8589403a97b99c6b")]
 [assembly: System.Reflection.AssemblyProductAttribute("JMSAutoMapper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JMSAutoMapper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.2.3")]
