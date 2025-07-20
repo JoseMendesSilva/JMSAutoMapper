@@ -21,7 +21,7 @@ Este checklist descreve melhorias potenciais, novos recursos e correções para 
 
 ## Melhorias Futuras
 
--   [ ] **Benchmarking de Desempenho:** Criar um conjunto abrangente de benchmarks de desempenho para comparar o JMSAutoMapper com outras bibliotecas de mapeamento populares.
+-   [x] **Benchmarking de Desempenho:** Criar um conjunto abrangente de benchmarks de desempenho para comparar o JMSAutoMapper com outras bibliotecas de mapeamento populares.
 -   [ ] **Documentação:** Expandir a documentação com mais exemplos, cenários de uso avançado e uma referência detalhada da API.
 -   [ ] **Testes Unitários:** Aumentar a cobertura de testes para garantir que todos os recursos funcionem como esperado e para prevenir regressões.
 -   [ ] **Geradores de Código-Source (Source Generators):** Explorar o uso de Geradores de Código-Fonte do C# para gerar o código de mapeamento em tempo de compilação, o que poderia proporcionar um aumento significativo de desempenho.
