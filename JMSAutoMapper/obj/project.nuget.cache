@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "CbM+xoc096c=",
+  "success": true,
+  "projectFilePath": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapper\\JMSAutoMapper.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\DELL\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.5\\microsoft.extensions.dependencyinjection.abstractions.9.0.5.nupkg.sha512",
+    "C:\\Users\\DELL\\.nuget\\packages\\system.collections.immutable\\9.0.4\\system.collections.immutable.9.0.4.nupkg.sha512",
+    "C:\\Users\\DELL\\.nuget\\packages\\system.configuration.configurationmanager\\9.0.4\\system.configuration.configurationmanager.9.0.4.nupkg.sha512",
+    "C:\\Users\\DELL\\.nuget\\packages\\system.diagnostics.eventlog\\9.0.4\\system.diagnostics.eventlog.9.0.4.nupkg.sha512",
+    "C:\\Users\\DELL\\.nuget\\packages\\system.runtime.caching\\9.0.4\\system.runtime.caching.9.0.4.nupkg.sha512",
+    "C:\\Users\\DELL\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.4\\system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
+  ],
+  "logs": []
+}

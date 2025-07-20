@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>JMSAutoMapperDemo</id>
+    <version>1.0.0</version>
+    <authors>JMSAutoMapperDemo</authors>
+    <description>Package Description</description>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="JMSAutoMapper" version="1.0.8" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapperDemo\bin\Release\net8.0\JMSAutoMapperDemo.runtimeconfig.json" target="lib\net8.0\JMSAutoMapperDemo.runtimeconfig.json" />
+    <file src="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapperDemo\bin\Release\net8.0\JMSAutoMapperDemo.dll" target="lib\net8.0\JMSAutoMapperDemo.dll" />
+  </files>
+</package>

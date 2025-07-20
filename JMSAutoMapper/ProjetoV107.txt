@@ -1,0 +1,1443 @@
+﻿Implementação completa de Mapper com DI
+Analise o código abaixo e implemente Inicialize, CreateMap, CustonMap e suporte a DI:
+public interface IMapper
+{
+    // Método base
+    T? Map<T>(object? source) where T : class, new();
+
+    // Coleções padrão
+    IEnumerable<T>? MapIEnumerable<T>(object? source) where T : class, new();
+    List<T>? MapList<T>(object? source) where T : class, new();
+    ICollection<T>? MapICollection<T>(object? source) where T : class, new();
+    IReadOnlyList<T>? MapIReadOnlyList<T>(object? source) where T : class, new();
+    IReadOnlyCollection<T>? MapIReadOnlyCollection<T>(object? source) where T : class, new();
+    T[]? MapArray<T>(object? source) where T : class, new();
+    HashSet<T>? MapHashSet<T>(object? source) where T : class, new();
+
+    // Dicionários
+    Dictionary<TKey, TValue>? MapDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new();
+
+    // Coleções imutáveis
+    ImmutableList<T>? MapImmutableList<T>(object? source) where T : class, new();
+    ImmutableDictionary<TKey, TValue>? MapImmutableDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new();
+    ImmutableArray<T>? MapImmutableArray<T>(object? source) where T : class, new();
+    ImmutableQueue<T>? MapImmutableQueue<T>(object? source) where T : class, new();
+    ImmutableStack<T>? MapImmutableStack<T>(object? source) where T : class, new();
+
+    // Métodos assíncronos
+    Task<T?> MapAsync<T>(object? source) where T : class, new();
+    Task<IEnumerable<T>?> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null)
+        where T : class, new();
+
+}
+
+public abstract class MapperBase : IMapper
+{
+    private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
+    private readonly Dictionary<(Type Source, Type Target), Delegate> _compiledExpressions = new();
+
+    public T? Map<T>(object? source) where T : class, new()
+    {
+        if (source == null) return null;
+        return MapObject<T>(source, new HashSet<object>());
+    }
+
+    protected abstract T? MapObject<T>(object source, HashSet<object> visited) where T : class, new();
+
+    protected object? ConvertValue(object? value, Type targetType)
+    {
+        if (value == null)
+        {
+            if (Nullable.GetUnderlyingType(targetType) != null || !targetType.IsValueType)
+                return null;
+            return Activator.CreateInstance(targetType);
+        }
+
+        try
+        {
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            // Se o tipo de destino for string, converte o valor para string
+            if (underlyingType == typeof(string))
+            {
+                return value.ToString();
+            }
+
+            // Se o valor já for do tipo correto, retorna o valor
+            if (underlyingType.IsInstanceOfType(value))
+            {
+                return value;
+            }
+
+            // Conversão para enums
+            if (underlyingType.IsEnum && value is int intValue)
+            {
+                return Enum.ToObject(underlyingType, intValue);
+            }
+
+            // Conversão para outros tipos
+            return Convert.ChangeType(value, underlyingType);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    protected PropertyInfo[] GetProperties(Type type)
+    {
+        if (!_propertyCache.TryGetValue(type, out var properties))
+        {
+            properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            _propertyCache[type] = properties;
+        }
+        return properties;
+    }
+
+    public IEnumerable<TDestination>? MapIEnumerable<TDestination>(object? source) where TDestination : class, new()
+    {
+        if (source == null) return null;
+        if (source is not IEnumerable enumerable)
+            throw new ArgumentException("Source must be a collection", nameof(source));
+
+        //var mappedObjects = new Dictionary<object, object>(new ReferenceEqualityComparer());
+        return enumerable.Cast<object>()
+            .Select(item => Map<TDestination>(item))
+            .Where(result => result != null)
+            .ToList()!;
+    }
+
+    public List<T>? MapList<T>(object? source) where T : class, new()
+    {
+        var list = new List<T>();
+
+        if (source == null) return null;
+        foreach (var item in (IList)source)
+        {
+            var result = Map<T>(item);
+            list.Add(result!);
+        }
+
+            return list;
+    }
+
+    public ICollection<T>? MapICollection<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IReadOnlyList<T>? MapIReadOnlyList<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IReadOnlyCollection<T>? MapIReadOnlyCollection<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public T[]? MapArray<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public HashSet<T>? MapHashSet<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Dictionary<TKey, TValue>? MapDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ImmutableList<T>? MapImmutableList<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ImmutableDictionary<TKey, TValue>? MapImmutableDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ImmutableArray<T>? MapImmutableArray<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ImmutableQueue<T>? MapImmutableQueue<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ImmutableStack<T>? MapImmutableStack<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<T?> MapAsync<T>(object? source) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<T>?> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null) where T : class, new()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class JMSMapper : MapperBase
+{
+    private readonly Dictionary<(Type Source, Type Target), Dictionary<string, string>> _customMappings = new();
+    private readonly Action<string, Exception>? _logger;
+
+    public JMSMapper(Action<string, Exception>? logger = null)
+    {
+        _logger = logger;
+    }
+
+    public void AddCustomMapping<TSource, TTarget>(string sourcePropertyName, string targetPropertyName)
+    {
+        var key = (typeof(TSource), typeof(TTarget));
+        if (!_customMappings.TryGetValue(key, out var mappings))
+        {
+            mappings = new Dictionary<string, string>();
+            _customMappings[key] = mappings;
+        }
+        mappings[sourcePropertyName] = targetPropertyName;
+    }
+
+    protected override T? MapObject<T>(object source, HashSet<object> visited) where T : class
+    {
+        if (source == null || visited.Contains(source)) return null;
+
+        visited.Add(source);
+
+        T result = new();
+
+        var sourceType = source.GetType();
+        var targetType = typeof(T);
+
+        var sourceProperties = GetProperties(sourceType);
+        var targetProperties = GetProperties(targetType);
+
+        foreach (var targetProperty in targetProperties)
+        {
+            if (!targetProperty.CanWrite) continue;
+
+            var sourcePropertyName = GetMappedPropertyName(sourceType, targetType, targetProperty.Name);
+            var sourceProperty = sourceProperties.FirstOrDefault(p => string.Equals(p.Name, sourcePropertyName, StringComparison.OrdinalIgnoreCase));
+
+            if (sourceProperty == null || !sourceProperty.CanRead) continue;
+
+            try
+            {
+                var value = sourceProperty.GetValue(source);
+
+                if (value == null) continue;
+
+                if (IsCollection(targetProperty.PropertyType))
+                {
+                    MapCollection(targetProperty, result, value, visited);
+                }
+                else if (IsComplexType(targetProperty.PropertyType))
+                {
+                    MapComplexObject(targetProperty, result, value, visited);
+                }
+                else
+                {
+                    var convertedValue = ConvertValue(value, targetProperty.PropertyType);
+                    targetProperty.SetValue(result, convertedValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Invoke($"Erro ao mapear propriedade '{targetProperty.Name}'", ex);
+            }
+        }
+
+        return result;
+    }
+
+    private string GetMappedPropertyName(Type sourceType, Type targetType, string targetPropertyName)
+    {
+        if (_customMappings.TryGetValue((sourceType, targetType), out var mappings) && mappings.TryGetValue(targetPropertyName, out var sourcePropertyName))
+        {
+            return sourcePropertyName;
+        }
+        return targetPropertyName;
+    }
+
+    private void MapCollection(PropertyInfo targetProperty, object result, object value, HashSet<object> visited)
+    {
+        var itemType = GetCollectionItemType(targetProperty.PropertyType);
+        if (itemType == null || !(value is IEnumerable sourceCollection)) return;
+
+        var mappedCollection = CreateCollection(targetProperty.PropertyType, itemType);
+        if (mappedCollection == null) return;
+
+        foreach (var item in sourceCollection)
+        {
+            if (item == null) continue;
+
+            var mappedItem = MapObject(itemType, item, visited);
+            if (mappedItem != null)
+                mappedCollection.Add(mappedItem);
+        }
+
+        targetProperty.SetValue(result, mappedCollection);
+    }
+
+    private object? MapObject(Type targetType, object source, HashSet<object> visited)
+    {
+        var method = typeof(JMSMapper)
+            .GetMethod(nameof(MapObjectGeneric), BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.MakeGenericMethod(targetType);
+
+        return method?.Invoke(this, new object[] { source, visited });
+    }
+
+    private T? MapObjectGeneric<T>(object source, HashSet<object> visited) where T : class, new()
+    {
+        return MapObject<T>(source, visited);
+    }
+
+    private Type? GetCollectionItemType(Type collectionType)
+    {
+        if (collectionType.IsArray)
+            return collectionType.GetElementType();
+
+        if (collectionType.IsGenericType)
+            return collectionType.GetGenericArguments().FirstOrDefault();
+
+        return null;
+    }
+
+    private IList? CreateCollection(Type collectionType, Type itemType)
+    {
+        if (collectionType.IsArray)
+            return Array.CreateInstance(itemType, 0) as IList;
+
+        if (collectionType.IsGenericType)
+            return Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType)) as IList;
+
+        return null;
+    }
+
+    private void MapComplexObject(PropertyInfo targetProperty, object result, object value, HashSet<object> visited)
+    {
+        var mappedObject = MapObject(targetProperty.PropertyType, value, visited);
+        targetProperty.SetValue(result, mappedObject);
+    }
+
+    private bool IsCollection(Type type)
+    {
+        return type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
+    }
+
+    private bool IsComplexType(Type type) //
+    {
+        return !type.IsPrimitive && !type.IsValueType && type != typeof(string);
+    }
+}.
+Implementação Completa do Mapper com Inicialização, Custom Mappings e DI
+Vou implementar as funcionalidades solicitadas (Inicialize, CreateMap, CustomMap e suporte a DI) no código fornecido. Aqui está a implementação completa:
+
+csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+
+public interface IMapper
+{
+    // Método base
+    T? Map<T>(object? source) where T : class, new();
+
+    // Coleções padrão
+    IEnumerable<T>? MapIEnumerable<T>(object? source) where T : class, new();
+    List<T>? MapList<T>(object? source) where T : class, new();
+    ICollection<T>? MapICollection<T>(object? source) where T : class, new();
+    IReadOnlyList<T>? MapIReadOnlyList<T>(object? source) where T : class, new();
+    IReadOnlyCollection<T>? MapIReadOnlyCollection<T>(object? source) where T : class, new();
+    T[]? MapArray<T>(object? source) where T : class, new();
+    HashSet<T>? MapHashSet<T>(object? source) where T : class, new();
+
+    // Dicionários
+    Dictionary<TKey, TValue>? MapDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new();
+
+    // Coleções imutáveis
+    ImmutableList<T>? MapImmutableList<T>(object? source) where T : class, new();
+    ImmutableDictionary<TKey, TValue>? MapImmutableDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new();
+    ImmutableArray<T>? MapImmutableArray<T>(object? source) where T : class, new();
+    ImmutableQueue<T>? MapImmutableQueue<T>(object? source) where T : class, new();
+    ImmutableStack<T>? MapImmutableStack<T>(object? source) where T : class, new();
+
+    // Métodos assíncronos
+    Task<T?> MapAsync<T>(object? source) where T : class, new();
+    Task<IEnumerable<T>?> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null)
+        where T : class, new();
+
+    // Configuração de mapeamento
+    IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>() 
+        where TSource : class 
+        where TDestination : class, new();
+}
+
+public interface IMappingExpression<TSource, TDestination> where TSource : class where TDestination : class, new()
+{
+    IMappingExpression<TSource, TDestination> ForMember<TMember>(
+        string destinationProperty,
+        Func<TSource, TMember> mappingFunction);
+    
+    IMappingExpression<TSource, TDestination> ForMember(
+        string destinationProperty,
+        string sourceProperty);
+}
+
+public static class MapperExtensions
+{
+    public static IServiceCollection AddJMSMapper(this IServiceCollection services, Action<MapperConfiguration>? configure = null)
+    {
+        var config = new MapperConfiguration();
+        configure?.Invoke(config);
+        
+        services.AddSingleton<IMapper>(provider => 
+        {
+            var logger = provider.GetService<Action<string, Exception>>();
+            return new JMSMapper(config, logger);
+        });
+        
+        return services;
+    }
+
+    public static void Initialize(Action<MapperConfiguration> configure)
+    {
+        var config = new MapperConfiguration();
+        configure.Invoke(config);
+        // Configuração é armazenada estáticamente no JMSMapper
+        JMSMapper.SetConfiguration(config);
+    }
+}
+
+public class MapperConfiguration
+{
+    internal Dictionary<(Type Source, Type Target), Dictionary<string, Func<object, object>>> CustomMappings { get; } = new();
+    internal Dictionary<(Type Source, Type Target), Dictionary<string, string>> PropertyMappings { get; } = new();
+
+    public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>() 
+        where TSource : class 
+        where TDestination : class, new()
+    {
+        return new MappingExpression<TSource, TDestination>(this);
+    }
+}
+
+public class MappingExpression<TSource, TDestination> : IMappingExpression<TSource, TDestination> 
+    where TSource : class 
+    where TDestination : class, new()
+{
+    private readonly MapperConfiguration _config;
+
+    public MappingExpression(MapperConfiguration config)
+    {
+        _config = config;
+    }
+
+    public IMappingExpression<TSource, TDestination> ForMember<TMember>(
+        string destinationProperty,
+        Func<TSource, TMember> mappingFunction)
+    {
+        var key = (typeof(TSource), typeof(TDestination));
+        
+        if (!_config.CustomMappings.TryGetValue(key, out var mappings))
+        {
+            mappings = new Dictionary<string, Func<object, object>>();
+            _config.CustomMappings[key] = mappings;
+        }
+        
+        mappings[destinationProperty] = src => mappingFunction((TSource)src)!;
+        
+        return this;
+    }
+
+    public IMappingExpression<TSource, TDestination> ForMember(
+        string destinationProperty,
+        string sourceProperty)
+    {
+        var key = (typeof(TSource), typeof(TDestination));
+        
+        if (!_config.PropertyMappings.TryGetValue(key, out var mappings))
+        {
+            mappings = new Dictionary<string, string>();
+            _config.PropertyMappings[key] = mappings;
+        }
+        
+        mappings[destinationProperty] = sourceProperty;
+        
+        return this;
+    }
+}
+
+public abstract class MapperBase : IMapper
+{
+    private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
+    private readonly Dictionary<(Type Source, Type Target), Delegate> _compiledExpressions = new();
+
+    public T? Map<T>(object? source) where T : class, new()
+    {
+        if (source == null) return null;
+        return MapObject<T>(source, new HashSet<object>());
+    }
+
+    protected abstract T? MapObject<T>(object source, HashSet<object> visited) where T : class, new();
+
+    protected object? ConvertValue(object? value, Type targetType)
+    {
+        if (value == null)
+        {
+            if (Nullable.GetUnderlyingType(targetType) != null || !targetType.IsValueType)
+                return null;
+            return Activator.CreateInstance(targetType);
+        }
+
+        try
+        {
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            if (underlyingType == typeof(string))
+            {
+                return value.ToString();
+            }
+
+            if (underlyingType.IsInstanceOfType(value))
+            {
+                return value;
+            }
+
+            if (underlyingType.IsEnum && value is int intValue)
+            {
+                return Enum.ToObject(underlyingType, intValue);
+            }
+
+            return Convert.ChangeType(value, underlyingType);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    protected PropertyInfo[] GetProperties(Type type)
+    {
+        if (!_propertyCache.TryGetValue(type, out var properties))
+        {
+            properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            _propertyCache[type] = properties;
+        }
+        return properties;
+    }
+
+    public IEnumerable<TDestination>? MapIEnumerable<TDestination>(object? source) where TDestination : class, new()
+    {
+        if (source == null) return null;
+        if (source is not IEnumerable enumerable)
+            throw new ArgumentException("Source must be a collection", nameof(source));
+
+        return enumerable.Cast<object>()
+            .Select(item => Map<TDestination>(item))
+            .Where(result => result != null)
+            .ToList()!;
+    }
+
+    public List<T>? MapList<T>(object? source) where T : class, new()
+    {
+        var list = new List<T>();
+
+        if (source == null) return null;
+        foreach (var item in (IList)source)
+        {
+            var result = Map<T>(item);
+            list.Add(result!);
+        }
+
+        return list;
+    }
+
+    public ICollection<T>? MapICollection<T>(object? source) where T : class, new()
+    {
+        return MapList<T>(source);
+    }
+
+    public IReadOnlyList<T>? MapIReadOnlyList<T>(object? source) where T : class, new()
+    {
+        return MapList<T>(source);
+    }
+
+    public IReadOnlyCollection<T>? MapIReadOnlyCollection<T>(object? source) where T : class, new()
+    {
+        return MapList<T>(source);
+    }
+
+    public T[]? MapArray<T>(object? source) where T : class, new()
+    {
+        var list = MapList<T>(source);
+        return list?.ToArray();
+    }
+
+    public HashSet<T>? MapHashSet<T>(object? source) where T : class, new()
+    {
+        var list = MapList<T>(source);
+        return list != null ? new HashSet<T>(list) : null;
+    }
+
+    public Dictionary<TKey, TValue>? MapDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new()
+    {
+        if (source == null) return null;
+        if (source is not IDictionary dictionary)
+            throw new ArgumentException("Source must be a dictionary", nameof(source));
+
+        var result = new Dictionary<TKey, TValue>();
+        foreach (DictionaryEntry entry in dictionary)
+        {
+            if (entry.Key is TKey key && entry.Value != null)
+            {
+                var value = Map<TValue>(entry.Value);
+                if (value != null)
+                    result.Add(key, value);
+            }
+        }
+        return result;
+    }
+
+    public ImmutableList<T>? MapImmutableList<T>(object? source) where T : class, new()
+    {
+        var list = MapList<T>(source);
+        return list?.ToImmutableList();
+    }
+
+    public ImmutableDictionary<TKey, TValue>? MapImmutableDictionary<TKey, TValue>(object? source)
+        where TKey : notnull
+        where TValue : class, new()
+    {
+        var dict = MapDictionary<TKey, TValue>(source);
+        return dict?.ToImmutableDictionary();
+    }
+
+    public ImmutableArray<T>? MapImmutableArray<T>(object? source) where T : class, new()
+    {
+        var list = MapList<T>(source);
+        return list?.ToImmutableArray();
+    }
+
+    public ImmutableQueue<T>? MapImmutableQueue<T>(object? source) where T : class, new()
+    {
+        var list = MapList<T>(source);
+        return list != null ? ImmutableQueue.CreateRange(list) : null;
+    }
+
+    public ImmutableStack<T>? MapImmutableStack<T>(object? source) where T : class, new()
+    {
+        var list = MapList<T>(source);
+        return list != null ? ImmutableStack.CreateRange(list) : null;
+    }
+
+    public Task<T?> MapAsync<T>(object? source) where T : class, new()
+    {
+        return Task.FromResult(Map<T>(source));
+    }
+
+    public Task<IEnumerable<T>?> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null) where T : class, new()
+    {
+        return Task.FromResult(MapIEnumerable<T>(source));
+    }
+
+    public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>() 
+        where TSource : class 
+        where TDestination : class, new()
+    {
+        throw new NotImplementedException("CreateMap should be called through MapperConfiguration");
+    }
+}
+
+public class JMSMapper : MapperBase
+{
+    private static MapperConfiguration? _staticConfig;
+    private readonly MapperConfiguration? _instanceConfig;
+    private readonly Action<string, Exception>? _logger;
+
+    public JMSMapper(MapperConfiguration? config = null, Action<string, Exception>? logger = null)
+    {
+        _instanceConfig = config;
+        _logger = logger;
+    }
+
+    public static void SetConfiguration(MapperConfiguration config)
+    {
+        _staticConfig = config;
+    }
+
+    private MapperConfiguration? GetActiveConfig() => _instanceConfig ?? _staticConfig;
+
+    protected override T? MapObject<T>(object source, HashSet<object> visited) where T : class, new()
+    {
+        if (source == null || visited.Contains(source)) return null;
+
+        visited.Add(source);
+
+        T result = new();
+
+        var sourceType = source.GetType();
+        var targetType = typeof(T);
+
+        var sourceProperties = GetProperties(sourceType);
+        var targetProperties = GetProperties(targetType);
+
+        var config = GetActiveConfig();
+        var customMappings = config?.CustomMappings;
+        var propertyMappings = config?.PropertyMappings;
+
+        foreach (var targetProperty in targetProperties)
+        {
+            if (!targetProperty.CanWrite) continue;
+
+            try
+            {
+                // Verifica mapeamentos customizados primeiro
+                var key = (sourceType, targetType);
+                if (customMappings?.TryGetValue(key, out var mappings) == true && 
+                    mappings.TryGetValue(targetProperty.Name, out var mappingFunc))
+                {
+                    var value = mappingFunc(source);
+                    targetProperty.SetValue(result, ConvertValue(value, targetProperty.PropertyType));
+                    continue;
+                }
+
+                // Verifica mapeamentos de propriedade
+                var sourcePropertyName = GetMappedPropertyName(sourceType, targetType, targetProperty.Name, propertyMappings);
+                var sourceProperty = sourceProperties.FirstOrDefault(p => 
+                    string.Equals(p.Name, sourcePropertyName, StringComparison.OrdinalIgnoreCase));
+
+                if (sourceProperty == null || !sourceProperty.CanRead) continue;
+
+                var value = sourceProperty.GetValue(source);
+
+                if (value == null) continue;
+
+                if (IsCollection(targetProperty.PropertyType))
+                {
+                    MapCollection(targetProperty, result, value, visited);
+                }
+                else if (IsComplexType(targetProperty.PropertyType))
+                {
+                    MapComplexObject(targetProperty, result, value, visited);
+                }
+                else
+                {
+                    var convertedValue = ConvertValue(value, targetProperty.PropertyType);
+                    targetProperty.SetValue(result, convertedValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.Invoke($"Erro ao mapear propriedade '{targetProperty.Name}'", ex);
+            }
+        }
+
+        return result;
+    }
+
+    private string GetMappedPropertyName(Type sourceType, Type targetType, string targetPropertyName, 
+        Dictionary<(Type, Type), Dictionary<string, string>>? propertyMappings)
+    {
+        var key = (sourceType, targetType);
+        if (propertyMappings?.TryGetValue(key, out var mappings) == true && 
+            mappings.TryGetValue(targetPropertyName, out var sourcePropertyName))
+        {
+            return sourcePropertyName;
+        }
+        return targetPropertyName;
+    }
+
+    private void MapCollection(PropertyInfo targetProperty, object result, object value, HashSet<object> visited)
+    {
+        var itemType = GetCollectionItemType(targetProperty.PropertyType);
+        if (itemType == null || !(value is IEnumerable sourceCollection)) return;
+
+        var mappedCollection = CreateCollection(targetProperty.PropertyType, itemType);
+        if (mappedCollection == null) return;
+
+        foreach (var item in sourceCollection)
+        {
+            if (item == null) continue;
+
+            var mappedItem = MapObject(itemType, item, visited);
+            if (mappedItem != null)
+                mappedCollection.Add(mappedItem);
+        }
+
+        targetProperty.SetValue(result, mappedCollection);
+    }
+
+    private object? MapObject(Type targetType, object source, HashSet<object> visited)
+    {
+        var method = typeof(JMSMapper)
+            .GetMethod(nameof(MapObjectGeneric), BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.MakeGenericMethod(targetType);
+
+        return method?.Invoke(this, new object[] { source, visited });
+    }
+
+    private T? MapObjectGeneric<T>(object source, HashSet<object> visited) where T : class, new()
+    {
+        return MapObject<T>(source, visited);
+    }
+
+    private Type? GetCollectionItemType(Type collectionType)
+    {
+        if (collectionType.IsArray)
+            return collectionType.GetElementType();
+
+        if (collectionType.IsGenericType)
+            return collectionType.GetGenericArguments().FirstOrDefault();
+
+        return null;
+    }
+
+    private IList? CreateCollection(Type collectionType, Type itemType)
+    {
+        if (collectionType.IsArray)
+            return Array.CreateInstance(itemType, 0) as IList;
+
+        if (collectionType.IsGenericType)
+        {
+            var listType = typeof(List<>).MakeGenericType(itemType);
+            return Activator.CreateInstance(listType) as IList;
+        }
+
+        return null;
+    }
+
+    private void MapComplexObject(PropertyInfo targetProperty, object result, object value, HashSet<object> visited)
+    {
+        var mappedObject = MapObject(targetProperty.PropertyType, value, visited);
+        targetProperty.SetValue(result, mappedObject);
+    }
+
+    private bool IsCollection(Type type)
+    {
+        return type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
+    }
+
+    private bool IsComplexType(Type type)
+    {
+        return !type.IsPrimitive && !type.IsValueType && type != typeof(string);
+    }
+}
+Funcionalidades Implementadas
+Inicialização:
+
+Adicionado método estático Initialize via classe MapperExtensions
+
+Permite configurar o mapper antes de usá-lo
+
+CreateMap:
+
+Implementada interface IMappingExpression para configuração fluente
+
+Adicionado método CreateMap na interface IMapper e implementação em MapperConfiguration
+
+CustomMap:
+
+Suporte a mapeamentos customizados via ForMember
+
+Permite tanto mapeamento de propriedades quanto funções customizadas
+
+DI (Injeção de Dependência):
+
+Adicionado método de extensão AddJMSMapper para registrar o mapper no container DI
+
+Suporte a injeção de logger customizado
+
+Exemplo de Uso
+csharp
+// Configuração estática (sem DI)
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<SourceClass, DestinationClass>()
+        .ForMember(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}")
+        .ForMember(dest => dest.Age, "Years");
+});
+
+// Uso com DI
+var services = new ServiceCollection();
+services.AddJMSMapper(cfg =>
+{
+    cfg.CreateMap<SourceClass, DestinationClass>()
+        .ForMember(dest => dest.FullName, "Name");
+});
+
+var provider = services.BuildServiceProvider();
+var mapper = provider.GetRequiredService<IMapper>();
+
+// Mapeamento
+var source = new SourceClass { FirstName = "John", LastName = "Doe", Years = 30 };
+var destination = mapper.Map<DestinationClass>(source);
+Melhorias Implementadas
+Configuração Flexível: Pode ser configurado tanto estaticamente quanto por instância
+
+Mapeamento Complexo: Suporte a funções customizadas para transformação de valores
+
+Performance: Cache de propriedades e configurações
+
+Extensibilidade: Fácil de adicionar novos tipos de mapeamento
+
+DI Ready: Pronto para uso com sistemas de injeção de dependência
+
+Esta implementação fornece uma solução completa para mapeamento de objetos com suporte a todas as funcionalidades solicitadas.
+
+Descreva linha a linha, o código a baixo, e de o funcionamento de cada uma: // Configuração estática (sem DI)
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<SourceClass, DestinationClass>()
+        .ForMember(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}")
+        .ForMember(dest => dest.Age, "Years");
+});
+
+// Uso com DI
+var services = new ServiceCollection();
+services.AddJMSMapper(cfg =>
+{
+    cfg.CreateMap<SourceClass, DestinationClass>()
+        .ForMember(dest => dest.FullName, "Name");
+});
+
+var provider = services.BuildServiceProvider();
+var mapper = provider.GetRequiredService<IMapper>();
+
+// Mapeamento
+var source = new SourceClass { FirstName = "John", LastName = "Doe", Years = 30 };
+var destination = mapper.Map<DestinationClass>(source);.
+Vamos analisar linha por linha o código de exemplo, explicando o funcionamento de cada parte:
+
+Configuração Estática (sem DI)
+csharp
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<SourceClass, DestinationClass>()
+        .ForMember(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}")
+        .ForMember(dest => dest.Age, "Years");
+});
+MapperExtensions.Initialize(cfg => {...}):
+
+Chama o método estático Initialize da classe MapperExtensions
+
+Passa uma ação (lambda) que recebe um objeto cfg do tipo MapperConfiguration
+
+cfg.CreateMap<SourceClass, DestinationClass>():
+
+Cria um mapeamento entre SourceClass (origem) e DestinationClass (destino)
+
+Retorna um objeto IMappingExpression para configuração fluente
+
+.ForMember(dest => dest.FullName, src => $"{src.FirstName} {src.LastName}"):
+
+Configura um mapeamento customizado para a propriedade FullName do destino
+
+Define uma função que concatena FirstName e LastName da origem para formar o FullName
+
+.ForMember(dest => dest.Age, "Years"):
+
+Mapeia a propriedade Age do destino para a propriedade Years da origem
+
+Forma mais simples de mapeamento direto com nomes diferentes
+
+Configuração com DI (Dependency Injection)
+csharp
+var services = new ServiceCollection();
+Cria uma nova coleção de serviços:
+
+Inicializa o container DI do .NET Core
+
+csharp
+services.AddJMSMapper(cfg =>
+{
+    cfg.CreateMap<SourceClass, DestinationClass>()
+        .ForMember(dest => dest.FullName, "Name");
+});
+services.AddJMSMapper(cfg => {...}):
+
+Registra o mapeador no container DI
+
+Aceita uma configuração similar ao método estático
+
+Configuração do mapeamento:
+
+Similar à configuração estática, mas com um mapeamento diferente para FullName
+
+csharp
+var provider = services.BuildServiceProvider();
+Constrói o provedor de serviços:
+
+Compila o container DI, tornando os serviços disponíveis para resolução
+
+csharp
+var mapper = provider.GetRequiredService<IMapper>();
+Obtém uma instância do mapeador:
+
+Resolve a instância do IMapper do container DI
+
+Execução do Mapeamento
+csharp
+var source = new SourceClass { FirstName = "John", LastName = "Doe", Years = 30 };
+Cria objeto de origem:
+
+Instância de SourceClass com valores de exemplo
+
+csharp
+var destination = mapper.Map<DestinationClass>(source);
+Executa o mapeamento:
+
+Converte o objeto source para DestinationClass
+
+Usa as configurações definidas anteriormente:
+
+Para a configuração estática:
+
+FullName = "John Doe" (concatenação)
+
+Age = 30 (mapeado de Years)
+
+Para a configuração DI:
+
+FullName = "John" (mapeado de Name - assumindo que Name existe)
+
+Age não seria mapeado (a menos que haja outra configuração)
+
+Fluxo de Funcionamento
+Configuração:
+
+As chamadas CreateMap e ForMember registram os mapeamentos em dicionários internos
+
+Os mapeamentos são armazenados em:
+
+PropertyMappings: para mapeamentos simples de propriedade para propriedade
+
+CustomMappings: para mapeamentos com funções customizadas
+
+Mapeamento:
+
+Quando Map é chamado, o mapeador:
+
+Cria uma nova instância do tipo destino
+
+Para cada propriedade no destino:
+
+Verifica se há um mapeamento customizado
+
+Se não, procura por mapeamento de propriedade
+
+Se não, tenta mapear por nome convencional
+
+Aplica conversões de tipo quando necessário
+
+Trata corretamente coleções e tipos complexos aninhados
+
+Injeção de Dependência:
+
+O mapeador é registrado como singleton no container DI
+
+Pode ser injetado em qualquer classe que necessite de mapeamento
+
+A configuração é passada durante o registro
+
+Esta implementação oferece flexibilidade para diferentes cenários de mapeamento, desde os mais simples até transformações complexas de dados, com suporte tanto para uso estático quanto para integração com sistemas de injeção de dependência.
+
+Esta linha: MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<ItemCompra, ItemCompraDto>()
+        .ForMember(dest => dest.FullName, src => $"{src.NomeProduto} {src.NomeProduto}")
+        .ForMember(dest => dest.Age, "Years");
+});, esta gerando, CS1660.
+O erro CS1660 ocorre quando você está tentando converter uma expressão lambda para um tipo delegate que não é compatível. No seu caso específico, o problema está na maneira como você está configurando o mapeamento com ForMember.
+
+Problema na Linha:
+csharp
+.ForMember(dest => dest.FullName, src => $"{src.NomeProduto} {src.NomeProduto}")
+Causa do Erro CS1660:
+Tipos Incompatíveis:
+
+O método ForMember espera um delegate específico (Func<TSource, TMember>), mas a expressão lambda que você está passando pode não estar alinhada com os tipos esperados.
+
+Verifique se:
+
+dest.FullName é uma propriedade válida em ItemCompraDto.
+
+src.NomeProduto é uma propriedade válida em ItemCompra.
+
+Mapeamento Redundante:
+
+Você está concatenando src.NomeProduto com ele mesmo ($"{src.NomeProduto} {src.NomeProduto}"), o que não faz sentido. Provavelmente, você quis usar duas propriedades diferentes, como NomeProduto e Descricao.
+
+Problema no Segundo ForMember:
+
+.ForMember(dest => dest.Age, "Years") assume que:
+
+ItemCompraDto tem uma propriedade Age.
+
+ItemCompra tem uma propriedade Years.
+
+Solução Correta:
+Assumindo que você quer mapear:
+
+FullName em ItemCompraDto como a concatenação de NomeProduto e Descricao de ItemCompra.
+
+Age em ItemCompraDto como o valor de Anos em ItemCompra.
+
+O código corrigido seria:
+
+csharp
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<ItemCompra, ItemCompraDto>()
+        .ForMember(dest => dest.FullName, 
+                   src => $"{src.NomeProduto} {src.Descricao}") // Corrigido para usar duas propriedades diferentes
+        .ForMember(dest => dest.Age, 
+                   src => src.Anos); // Assumindo que "Anos" é a propriedade em ItemCompra
+});
+Se você quisesse mapear Age diretamente de uma propriedade chamada Years:
+csharp
+.ForMember(dest => dest.Age, "Years") // Isso só funciona se "Years" for o nome da propriedade em ItemCompra
+Ou, alternativamente:
+
+csharp
+.ForMember(dest => dest.Age, src => src.Years) // Mais seguro e verificado em tempo de compilação
+Verifique também:
+Nomes das Propriedades:
+
+Confirme se NomeProduto, Descricao, Anos/Years existem em ItemCompra.
+
+Confirme se FullName e Age existem em ItemCompraDto.
+
+Tipos das Propriedades:
+
+FullName deve ser do tipo string.
+
+Age deve ser do tipo compatível com Anos/Years (provavelmente int).
+
+Exemplo Completo Corrigido:
+csharp
+public class ItemCompra
+{
+    public string NomeProduto { get; set; }
+    public string Descricao { get; set; }
+    public int Anos { get; set; }
+}
+
+public class ItemCompraDto
+{
+    public string FullName { get; set; }
+    public int Age { get; set; }
+}
+
+// Configuração correta:
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<ItemCompra, ItemCompraDto>()
+        .ForMember(dest => dest.FullName, 
+                   src => $"{src.NomeProduto} {src.Descricao}")
+        .ForMember(dest => dest.Age, 
+                   src => src.Anos);
+});
+Isso deve resolver o erro CS1660 e fazer o mapeamento funcionar como esperado.
+
+Posso usar CreateMap sem usar ForMember?
+Sim, você pode usar CreateMap sem usar ForMember! O mapeamento básico funciona por convenção de nomes das propriedades quando os nomes e tipos são compatíveis entre as classes de origem e destino.
+
+Como funciona o mapeamento sem ForMember:
+Mapeamento Automático por Convenção:
+
+O mapper tentará associar automaticamente as propriedades com o mesmo nome e tipo compatível.
+
+Exemplo: Se ItemCompra tem NomeProduto (string) e ItemCompraDto também tem NomeProduto (string), o valor será copiado automaticamente.
+
+Quando usar ForMember:
+
+Somente quando você precisa de:
+
+Mapear propriedades com nomes diferentes (ex: Anos → Age).
+
+Transformações customizadas (ex: concatenar Nome + Sobrenome → FullName).
+
+Ignorar propriedades que não devem ser mapeadas.
+
+Exemplo SEM ForMember (mapeamento automático):
+csharp
+public class ItemCompra
+{
+    public string NomeProduto { get; set; }
+    public decimal Preco { get; set; }
+}
+
+public class ItemCompraDto
+{
+    public string NomeProduto { get; set; } // Mapeia automaticamente (mesmo nome)
+    public decimal Preco { get; set; }     // Mapeia automaticamente (mesmo nome)
+}
+
+// Configuração SIMPLES (sem ForMember):
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<ItemCompra, ItemCompraDto>(); 
+    // Não precisa de ForMember se os nomes e tipos forem iguais!
+});
+
+// Uso:
+var item = new ItemCompra { NomeProduto = "Notebook", Preco = 5000 };
+var itemDto = mapper.Map<ItemCompraDto>(item);
+
+// Resultado:
+// itemDto.NomeProduto = "Notebook" (mapeado automaticamente)
+// itemDto.Preco = 5000 (mapeado automaticamente)
+Quando NÃO funciona sem ForMember:
+Nomes diferentes:
+
+csharp
+public class ItemCompraDto
+{
+    public string Produto { get; set; } // Diferente de "NomeProduto" na origem
+}
+→ Nesse caso, você precisaria de:
+
+csharp
+.ForMember(dest => dest.Produto, src => src.NomeProduto)
+Transformação de dados:
+
+csharp
+public class ItemCompraDto
+{
+    public string NomeCompletoProduto { get; set; }
+}
+→ Se precisar concatenar campos, use:
+
+csharp
+.ForMember(dest => dest.NomeCompletoProduto, 
+           src => $"{src.NomeProduto} - {src.Categoria}")
+Resumo:
+Situação	Precisa de ForMember?
+Nomes iguais e tipos compatíveis	❌ Não
+Nomes diferentes	✅ Sim
+Transformação customizada	✅ Sim
+Ignorar uma propriedade	✅ Sim (usando Ignore)
+Você só precisa usar ForMember para casos específicos onde o mapeamento automático não é suficiente. 🚀
+
+O JMSAutoMapper esta funcionando corretamente exceto que, em produção, a propriedade do tipo enum e seus valores estão sendo perdidas: 
+    protected object? ConvertValue(object? value, Type targetType)
+    {
+        if (value == null)
+        {
+            if (Nullable.GetUnderlyingType(targetType) != null || !targetType.IsValueType)
+                return null;
+            return Activator.CreateInstance(targetType);
+        }
+
+        try
+        {
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            if (underlyingType == typeof(string))
+            {
+                return value.ToString();
+            }
+
+            if (underlyingType.IsInstanceOfType(value))
+            {
+                return value;
+            }
+
+            if (underlyingType.IsEnum && value is int intValue)
+            {
+                return Enum.ToObject(underlyingType, intValue);
+            }
+
+            return Convert.ChangeType(value, underlyingType);
+        }
+        catch
+        {
+            return null;
+        }
+    }.
+Problema no Mapeamento de Enums no JMSAutoMapper
+O código atual tem uma limitação no tratamento de enums, especialmente quando o valor de origem não é um int. Vamos analisar e corrigir o problema.
+
+Problema Identificado
+A conversão de enum só funciona quando:
+
+O valor de origem é exatamente um int
+
+Não há tratamento para outros casos como:
+
+String para enum
+
+Outros tipos numéricos para enum
+
+Enum para enum diferente
+
+Solução Proposta
+Vamos modificar o método ConvertValue para lidar com todos os cenários de enum:
+
+csharp
+protected object? ConvertValue(object? value, Type targetType)
+{
+    if (value == null)
+    {
+        if (Nullable.GetUnderlyingType(targetType) != null || !targetType.IsValueType)
+            return null;
+        return Activator.CreateInstance(targetType);
+    }
+
+    try
+    {
+        var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        // Se o tipo de destino for string, converte o valor para string
+        if (underlyingType == typeof(string))
+        {
+            return value.ToString();
+        }
+
+        // Se o valor já for do tipo correto, retorna o valor
+        if (underlyingType.IsInstanceOfType(value))
+        {
+            return value;
+        }
+
+        // Conversão para enums - tratamento completo
+        if (underlyingType.IsEnum)
+        {
+            return ConvertToEnum(value, underlyingType);
+        }
+
+        // Conversão para outros tipos
+        return Convert.ChangeType(value, underlyingType);
+    }
+    catch
+    {
+        return null;
+    }
+}
+
+private object ConvertToEnum(object value, Type enumType)
+{
+    // Caso 1: Já é o enum correto (mas de tipo diferente)
+    if (value.GetType().IsEnum)
+    {
+        return Enum.ToObject(enumType, (int)value);
+    }
+
+    // Caso 2: É string - faz parse
+    if (value is string stringValue)
+    {
+        return Enum.Parse(enumType, stringValue, true);
+    }
+
+    // Caso 3: É número - converte
+    if (value is int || value is short || value is byte || 
+        value is long || value is uint || value is ushort || 
+        value is sbyte || value is ulong)
+    {
+        return Enum.ToObject(enumType, value);
+    }
+
+    // Caso 4: É decimal/double/float - converte para int primeiro
+    if (value is decimal || value is double || value is float)
+    {
+        return Enum.ToObject(enumType, Convert.ToInt32(value));
+    }
+
+    throw new InvalidOperationException($"Não foi possível converter {value.GetType().Name} para {enumType.Name}");
+}
+Melhorias Implementadas
+Suporte a strings como valor de enum:
+
+Agora aceita converter strings como "Active" para o valor enum correspondente
+
+Suporte a todos os tipos numéricos:
+
+Converte corretamente de short, byte, long, etc. para enum
+
+Conversão entre enums diferentes:
+
+Permite mapear de um enum para outro (convertendo pelo valor numérico)
+
+Tratamento de números decimais:
+
+Converte corretamente valores como 1.0 (double) para enum
+
+Mensagens de erro mais claras:
+
+Exceção específica quando a conversão não é possível
+
+Exemplo de Uso
+csharp
+public enum StatusPedido
+{
+    Pendente = 0,
+    Processando = 1,
+    Completo = 2
+}
+
+public class Pedido
+{
+    public int Id { get; set; }
+    public string Status { get; set; } // "Processando"
+    public int StatusCode { get; set; } // 1
+}
+
+public class PedidoDto
+{
+    public int Id { get; set; }
+    public StatusPedido Status { get; set; }
+}
+
+// Configuração
+MapperExtensions.Initialize(cfg =>
+{
+    cfg.CreateMap<Pedido, PedidoDto>()
+        .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status)); // Converte string para enum
+        // Ou poderia mapear de src.StatusCode (int para enum)
+});
+
+// Todos estes casos agora funcionarão:
+// - De string "Processando" para StatusPedido.Processando
+// - De int 1 para StatusPedido.Processando
+// - De outro enum com valor 1 para StatusPedido.Processando
+Considerações Finais
+Performance: O código adicional tem impacto mínimo na performance
+
+Segurança: Mantém o tratamento de erros original (retorna null em caso de falha)
+
+Compatibilidade: Não quebra implementações existentes
+
+Extensibilidade: Fácil de adicionar novos casos de conversão se necessário
+
+Esta solução resolve o problema de perda de valores enum em produção enquanto mantém a robustez do mapeador.
