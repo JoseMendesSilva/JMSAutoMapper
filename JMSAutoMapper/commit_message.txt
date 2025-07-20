@@ -1,0 +1,5 @@
+Fix: Resolve compilation errors in JMSMapper.cs
+
+- Moved ProjectionExpressionVisitor inside JMSMapper class.
+- Added abstract MapQueryable method to MapperBase.
+- Added override keyword to MapQueryable in JMSMapper.

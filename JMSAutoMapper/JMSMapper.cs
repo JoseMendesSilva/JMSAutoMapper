@@ -39,6 +39,9 @@ namespace JMSAutoMapper
         // Métodos assíncronos
         Task<T> MapAsync<T>(object? source);
         Task<IEnumerable<T>> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null);
+        IQueryable<TDestination> MapQueryable<TSource, TDestination>(IQueryable<TSource> source) where TSource : class where TDestination : class;
+
+        
 
 
     }
@@ -186,6 +189,10 @@ namespace JMSAutoMapper
 
     public abstract class MapperBase : IMapper
     {
+        public abstract IQueryable<TDestination> MapQueryable<TSource, TDestination>(IQueryable<TSource> source)
+            where TSource : class
+            where TDestination : class;
+
         private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
         protected readonly ConcurrentDictionary<(Type Source, Type Target), Delegate> _compiledMappers = new();
         protected readonly ConcurrentDictionary<Type, MethodInfo> _mapObjectMethodCache = new();
@@ -406,6 +413,11 @@ namespace JMSAutoMapper
                     .ContinueWith(t => t.Result.Where(result => result != null).ToList() as IEnumerable<T>);
             }
         }
+
+        
+        
+
+
     }
 
     public class JMSMapper : MapperBase
@@ -424,6 +436,36 @@ namespace JMSAutoMapper
         }
 
         private MapperConfiguration? GetActiveConfig() => _instanceConfig ?? _staticConfig;
+
+        public override IQueryable<TDestination> MapQueryable<TSource, TDestination>(IQueryable<TSource> source)
+            where TSource : class
+            where TDestination : class
+        {
+            var sourceType = typeof(TSource);
+            var targetType = typeof(TDestination);
+
+            var config = GetActiveConfig();
+
+            // Create a parameter expression for the source type
+            var parameter = Expression.Parameter(sourceType, "source");
+
+            // Build the projection expression
+            var visitor = new ProjectionExpressionVisitor(config!, sourceType, targetType, parameter);
+            var projectionBody = visitor.Visit(parameter);
+
+            // Create the lambda expression: source => new TDestination { ... }
+            var lambda = Expression.Lambda<Func<TSource, TDestination>>(projectionBody, parameter);
+
+            // Use the Expression.Call to create the Select method call on the IQueryable
+            return source.Provider.CreateQuery<TDestination>(
+                Expression.Call(
+                    typeof(Queryable), "Select",
+                    new Type[] { sourceType, targetType },
+                    source.Expression,
+                    Expression.Quote(lambda)
+                )
+            );
+        }
 
         protected override async Task<T> MapObject<T>(object source, Dictionary<object, object> mappedObjects)
         {
@@ -740,6 +782,34 @@ namespace JMSAutoMapper
             }
 
             return true;
+        }
+    private class ProjectionExpressionVisitor : ExpressionVisitor
+        {
+            private readonly MapperConfiguration _config;
+            private readonly Type _sourceType;
+            private readonly Type _targetType;
+            private readonly ParameterExpression _parameterExpression;
+
+            public ProjectionExpressionVisitor(MapperConfiguration config, Type sourceType, Type targetType, ParameterExpression parameterExpression)
+            {
+                _config = config;
+                _sourceType = sourceType;
+                _targetType = targetType;
+                _parameterExpression = parameterExpression;
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                // Replace the parameter with the root source parameter
+                return node == _parameterExpression ? node : base.VisitParameter(node);
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                // This is where the core projection logic will go
+                // For now, just pass through
+                return base.VisitMember(node);
+            }
         }
     }
 
