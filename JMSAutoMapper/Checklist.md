@@ -12,7 +12,7 @@ Este checklist descreve melhorias potenciais, novos recursos e correções para 
 -   [x] **Mapeamento Assíncrono:** Os métodos `MapAsync` e `MapIEnumerableAsync` agora suportam operações assíncronas verdadeiras, permitindo resolvedores assíncronos e operações ligadas a I/O.
 -   [x] **Consistência de Tipos de Retorno:** Os tipos de retorno dos métodos de mapeamento de coleções em `MapperBase` agora correspondem aos definidos na interface `IMapper`.
 -   [x] **Mapeamento aninhado de coleções:** Garantir que o mapeamento de coleções aninhadas (ex: `List<List<T>>`) funcione corretamente.
--   [ ] **Ignorar Propriedades:** Adicionar uma forma de ignorar propriedades durante o mapeamento, tanto globalmente quanto para mapeamentos específicos.
+-   [x] **Ignorar Propriedades:** Adicionar uma forma de ignorar propriedades durante o mapeamento, tanto globalmente quanto para mapeamentos específicos.
 -   [ ] **Injeção de Construtor:** Suporte para mapear objetos com construtores parametrizados, permitindo cenários de criação de objetos mais complexos.
 -   [ ] **Achatamento (Flattening):** Implementar um recurso de achatamento baseado em convenção, onde as propriedades de um objeto aninhado são mapeadas para um objeto de destino plano (ex: `source.Endereco.Rua` -> `destination.EnderecoRua`).
 -   [ ] **Projeção (Projection):** Adicionar suporte para projeção `IQueryable`, o que permitiria ao mapeador gerar consultas de banco de dados eficientes para ORMs como o Entity Framework.

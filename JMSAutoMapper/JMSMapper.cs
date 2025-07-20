@@ -56,6 +56,7 @@ namespace JMSAutoMapper
             Func<TSource, bool>? condition = null);
 
         IMappingExpression<TDestination, TSource> ReverseMap();
+        IMappingExpression<TSource, TDestination> Ignore<TMember>(Expression<Func<TDestination, TMember>> destinationMember);
     }
 
     public static class MapperExtensions
@@ -80,6 +81,7 @@ namespace JMSAutoMapper
         internal Dictionary<(Type Source, Type Target), Dictionary<string, Func<object, object>>> CustomMappings { get; } = new();
         internal Dictionary<(Type Source, Type Target), Dictionary<string, string>> PropertyMappings { get; } = new();
         internal Dictionary<(Type Source, Type Target), Dictionary<string, Func<object, bool>>> ConditionalMappings { get; } = new();
+        internal HashSet<(Type Source, Type Target, string PropertyName)> IgnoredProperties { get; } = new();
 
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
         {
@@ -166,6 +168,19 @@ namespace JMSAutoMapper
             }
 
             return reverseMapping;
+        }
+
+        public IMappingExpression<TSource, TDestination> Ignore<TMember>(Expression<Func<TDestination, TMember>> destinationMember)
+        {
+            if (destinationMember.Body is not MemberExpression memberExpression)
+            {
+                throw new ArgumentException("Expression must be a member expression.", nameof(destinationMember));
+            }
+
+            var propertyName = memberExpression.Member.Name;
+            _config.IgnoredProperties.Add((typeof(TSource), typeof(TDestination), propertyName));
+
+            return this;
         }
     }
 
@@ -493,6 +508,7 @@ namespace JMSAutoMapper
             var propertyMappings = config?.PropertyMappings;
             var customMappings = config?.CustomMappings;
             var conditionalMappings = config?.ConditionalMappings;
+            var ignoredProperties = config?.IgnoredProperties;
 
             var sourceProperties = GetProperties(sourceType);
             var targetProperties = GetProperties(targetType);
@@ -507,6 +523,12 @@ namespace JMSAutoMapper
             foreach (var targetProperty in targetProperties)
             {
                 if (!targetProperty.CanWrite) continue;
+
+                // Check if the property should be ignored
+                if (ignoredProperties?.Contains((sourceType, targetType, targetProperty.Name)) == true)
+                {
+                    continue;
+                }
 
                 Expression? propertyMappingExpression = null;
 
