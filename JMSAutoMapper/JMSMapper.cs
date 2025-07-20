@@ -121,6 +121,7 @@ namespace JMSAutoMapper
         internal Dictionary<(Type Source, Type Target), Dictionary<string, string>> PropertyMappings { get; } = new();
         internal Dictionary<(Type Source, Type Target), Dictionary<string, Func<object, bool>>> ConditionalMappings { get; } = new();
         internal HashSet<(Type Source, Type Target, string PropertyName)> IgnoredProperties { get; } = new();
+        public Func<string, string> NamingConvention { get; set; } = name => name; // Default to no change
 
         public void AddProfile<TProfile>() where TProfile : Profile, new()
         {
@@ -673,7 +674,7 @@ namespace JMSAutoMapper
                 }
                 else
                 {
-                    var sourcePropertyName = GetMappedPropertyName(sourceType, targetType, targetProperty.Name, propertyMappings);
+                    var sourcePropertyName = GetMappedPropertyName(sourceType, targetType, targetProperty.Name, propertyMappings, config);
                     var sourceProperty = sourceProperties.FirstOrDefault(p =>
                         string.Equals(p.Name, sourcePropertyName, StringComparison.OrdinalIgnoreCase));
 
@@ -757,7 +758,7 @@ namespace JMSAutoMapper
         }
 
         private string GetMappedPropertyName(Type sourceType, Type targetType, string targetPropertyName,
-            Dictionary<(Type, Type), Dictionary<string, string>>? propertyMappings)
+            Dictionary<(Type, Type), Dictionary<string, string>>? propertyMappings, MapperConfiguration? config)
         {
             var key = (sourceType, targetType);
             if (propertyMappings?.TryGetValue(key, out var mappings) == true &&
@@ -765,7 +766,7 @@ namespace JMSAutoMapper
             {
                 return sourcePropertyName;
             }
-            return targetPropertyName;
+            return config?.NamingConvention(targetPropertyName) ?? targetPropertyName;
         }
 
         private async Task<object?> MapCollectionHelper(IEnumerable? sourceEnumerable, Type targetCollectionType, Dictionary<object, object> mappedObjects)

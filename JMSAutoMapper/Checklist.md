@@ -16,8 +16,8 @@ Este checklist descreve melhorias potenciais, novos recursos e correções para 
 -   [x] **Injeção de Construtor:** Suporte para mapear objetos com construtores parametrizados, permitindo cenários de criação de objetos mais complexos.
 -   [x] **Achatamento (Flattening):** Implementar um recurso de achatamento baseado em convenção, onde as propriedades de um objeto aninhado são mapeadas para um objeto de destino plano (ex: `source.Endereco.Rua` -> `destination.EnderecoRua`).
 -   [x] **Projeção (Projection):** Adicionar suporte para projeção `IQueryable`, o que permitiria ao mapeador gerar consultas de banco de dados eficientes para ORMs como o Entity Framework.
--   [ ] **Perfis (Profiles):** Introduzir perfis para agrupar configurações de mapeamento relacionadas, facilitando o gerenciamento de mapeamentos em aplicações maiores.
--   [ ] **Configuração Global:** Permitir a configuração global de definições como convenções de correspondência de nomes de propriedades.
+-   [x] **Perfis (Profiles):** Introduzir perfis para agrupar configurações de mapeamento relacionadas, facilitando o gerenciamento de mapeamentos em aplicações maiores.
+-   [x] **Configuração Global:** Permitir a configuração global de definições como convenções de correspondência de nomes de propriedades.
 
 ## Melhorias Futuras
 
