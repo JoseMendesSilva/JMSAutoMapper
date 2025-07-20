@@ -174,6 +174,12 @@ namespace JMSAutoMapper
         private readonly Dictionary<Type, PropertyInfo[]> _propertyCache = new();
         protected readonly ConcurrentDictionary<(Type Source, Type Target), Delegate> _compiledMappers = new();
         protected readonly ConcurrentDictionary<Type, MethodInfo> _mapObjectMethodCache = new();
+        protected readonly Action<string, Exception>? _logger;
+
+        protected MapperBase(Action<string, Exception>? logger = null)
+        {
+            _logger = logger;
+        }
 
         public T? Map<T>(object? source)
         {
@@ -214,8 +220,9 @@ namespace JMSAutoMapper
 
                 return Convert.ChangeType(value, underlyingType);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.Invoke($"Erro ao converter valor de '{value?.GetType().Name}' para '{targetType.Name}'", ex);
                 return null;
             }
         }
@@ -389,10 +396,9 @@ namespace JMSAutoMapper
         private readonly MapperConfiguration? _instanceConfig;
         private readonly Action<string, Exception>? _logger;
 
-        public JMSMapper(MapperConfiguration? config = null, Action<string, Exception>? logger = null)
+        public JMSMapper(MapperConfiguration? config = null, Action<string, Exception>? logger = null) : base(logger)
         {
             _instanceConfig = config;
-            _logger = logger;
         }
 
         public static void SetConfiguration(MapperConfiguration config)
@@ -404,7 +410,14 @@ namespace JMSAutoMapper
 
         protected override T MapObject<T>(object source, Dictionary<object, object> mappedObjects)
         {
-            if (source == null) return default;
+            if (source == null)
+            {
+                if (typeof(T).IsValueType && Nullable.GetUnderlyingType(typeof(T)) == null)
+                {
+                    throw new ArgumentNullException(nameof(source), $"Não é possível mapear uma origem nula para um tipo de valor não anulável '{typeof(T).Name}'.");
+                }
+                return default; // Para tipos de referência ou tipos de valor anuláveis, retorna null.
+            }
 
             if (mappedObjects.TryGetValue(source, out var existing))
                 return (T)existing;
