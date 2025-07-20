@@ -64,10 +64,13 @@ namespace JMSAutoMapper
 
     public static class MapperExtensions
     {
-        public static IServiceCollection AddJMSMapper(this IServiceCollection services, Action<MapperConfiguration>? configure = null)
+        public static IServiceCollection AddJMSMapper(this IServiceCollection services, Action<MapperConfiguration>? configure = null, Action<ProfileConfiguration>? configureProfiles = null)
         {
             var config = new MapperConfiguration();
             configure?.Invoke(config);
+
+            var profileConfig = new ProfileConfiguration(config);
+            configureProfiles?.Invoke(profileConfig);
 
             services.AddSingleton<IMapper>(provider =>
             {
@@ -79,12 +82,67 @@ namespace JMSAutoMapper
         }
     }
 
+    public class ProfileConfiguration
+    {
+        private readonly MapperConfiguration _config;
+
+        public ProfileConfiguration(MapperConfiguration config)
+        {
+            _config = config;
+        }
+
+        public void AddProfile<TProfile>() where TProfile : Profile, new()
+        {
+            _config.AddProfile<TProfile>();
+        }
+    }
+
+    public abstract class Profile
+    {
+        internal MapperConfiguration Configuration { get; private set; }
+
+        public Profile()
+        {
+            Configuration = new MapperConfiguration();
+            Configure();
+        }
+
+        public virtual void Configure() { }
+
+        protected IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
+        {
+            return Configuration.CreateMap<TSource, TDestination>();
+        }
+    }
+
     public class MapperConfiguration
     {
         internal Dictionary<(Type Source, Type Target), Dictionary<string, Func<object, object>>> CustomMappings { get; } = new();
         internal Dictionary<(Type Source, Type Target), Dictionary<string, string>> PropertyMappings { get; } = new();
         internal Dictionary<(Type Source, Type Target), Dictionary<string, Func<object, bool>>> ConditionalMappings { get; } = new();
         internal HashSet<(Type Source, Type Target, string PropertyName)> IgnoredProperties { get; } = new();
+
+        public void AddProfile<TProfile>() where TProfile : Profile, new()
+        {
+            var profile = new TProfile();
+            // Merge configurations from the profile
+            foreach (var customMapping in profile.Configuration.CustomMappings)
+            {
+                CustomMappings[customMapping.Key] = customMapping.Value;
+            }
+            foreach (var propertyMapping in profile.Configuration.PropertyMappings)
+            {
+                PropertyMappings[propertyMapping.Key] = propertyMapping.Value;
+            }
+            foreach (var conditionalMapping in profile.Configuration.ConditionalMappings)
+            {
+                ConditionalMappings[conditionalMapping.Key] = conditionalMapping.Value;
+            }
+            foreach (var ignoredProperty in profile.Configuration.IgnoredProperties)
+            {
+                IgnoredProperties.Add(ignoredProperty);
+            }
+        }
 
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
         {

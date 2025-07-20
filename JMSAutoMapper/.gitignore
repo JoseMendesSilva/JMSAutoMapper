@@ -1,0 +1,18 @@
+# Visual Studio 2015
+.vs/
+# Visual Studio 2017
+.vs/
+# Visual Studio 2019
+.vs/
+# Visual Studio 2022
+.vs/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+# Packages
+*.nupkg
+# End of default ignore list
