@@ -18,47 +18,29 @@ public class LoadTests
         public string CreatedDate { get; set; }
     }
 
-    //[Fact]
-    //public void Map_10000Objects_ShouldCompleteInReasonableTime()
-    //{
-    //    // Arrange
-    //    var mapper = new JMSMapper();
-    //    var sources = Enumerable.Range(1, 10000)
-    //        .Select(i => new TestEntity
-    //        {
-    //            Id = i,
-    //            Name = $"Item {i}",
-    //            Created = DateTime.Now.AddDays(-i)
-    //        }).ToList();
+    [Fact]
+    public void Map_100000Objects_ShouldCompleteInReasonableTime()
+    {
+        // Arrange
+        var mapper = new JMSMapper();
+        var sources = Enumerable.Range(1, 100000)
+            .Select(i => new TestEntity
+            {
+                Id = i,
+                Name = $"Item {i}",
+                Created = DateTime.Now.AddDays(-i)
+            }).ToList();
 
-    //    var stopwatch = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
 
-    //    // Act
-    //    var results = mapper.MapList<TestDto>(sources);
+        // Act
+        var results = mapper.MapList<TestDto>(sources);
 
-    //    // Assert
-    //    stopwatch.Stop();
-    //    Assert.Equal(10000, results.Count);
-    //    Assert.True(stopwatch.ElapsedMilliseconds < 1000,
-    //        $"Mapping 10,000 objects took {stopwatch.ElapsedMilliseconds}ms");
-    //}
+        // Assert
+        stopwatch.Stop();
+        Assert.Equal(100000, results.Count);
+        Assert.True(stopwatch.ElapsedMilliseconds < 10000,
+            $"Mapping 100,000 objects took {stopwatch.ElapsedMilliseconds}ms");
+    }
 
-    //[Fact]
-    //public void Map_ConcurrentDictionary_ShouldHandleLargeCollections()
-    //{
-    //    // Arrange
-    //    var mapper = new JMSMapper();
-    //    var source = new Dictionary<int, TestEntity>();
-    //    for (int i = 0; i < 5000; i++)
-    //    {
-    //        source[i] = new TestEntity { Id = i, Name = $"Item {i}" };
-    //    }
-
-    //    // Act
-    //    var result = mapper.MapConcurrentDictionary<int, TestDto>(source);
-
-    //    // Assert
-    //    Assert.NotNull(result);
-    //    Assert.Equal(5000, result.Count);
-    //}
 }

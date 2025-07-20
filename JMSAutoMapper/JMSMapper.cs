@@ -264,7 +264,24 @@ namespace JMSAutoMapper
 
         public T Map<T>(object? source)
         {
-            if (source == null) return default!;
+            if (source == null)
+            {
+                if (typeof(T).IsValueType && Nullable.GetUnderlyingType(typeof(T)) == null)
+                {
+                    throw new ArgumentNullException(nameof(source), $"Não é possível mapear uma origem nula para um tipo de valor não anulável '{typeof(T).Name}'.");
+                }
+                return default!;
+            }
+
+            var targetType = typeof(T);
+            var sourceType = source.GetType();
+
+            // Handle direct mapping of same types, primitive types, or when source is assignable to target
+            if (targetType.IsAssignableFrom(sourceType) || targetType.IsPrimitive || targetType == typeof(string) || targetType == typeof(decimal) || targetType == typeof(DateTime) || targetType == typeof(Guid) || targetType == typeof(TimeSpan) || targetType == typeof(DateTimeOffset) || Nullable.GetUnderlyingType(targetType) == sourceType)
+            {
+                return (T)ConvertValue(source, targetType)!;
+            }
+
             var mappedObjects = new Dictionary<object, object>(ReferenceEqualityComparer.Instance);
             return MapObject<T>(source, mappedObjects).Result; // Blocking call for sync Map
         }
@@ -297,6 +314,11 @@ namespace JMSAutoMapper
                 if (underlyingType.IsEnum)
                 {
                     return ConvertToEnum(value, underlyingType);
+                }
+
+                if (value.GetType().IsEnum && underlyingType == typeof(string))
+                {
+                    return value.ToString();
                 }
 
                 return Convert.ChangeType(value, underlyingType);

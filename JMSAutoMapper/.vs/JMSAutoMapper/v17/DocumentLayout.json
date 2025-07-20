@@ -1,21 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapper\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{493AE5BA-1229-461E-9A45-8E713AF2E470}|..\\JMSAutoMapperDemo\\JMSAutoMapperDemo.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapperdemo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{493AE5BA-1229-461E-9A45-8E713AF2E470}|..\\JMSAutoMapperDemo\\JMSAutoMapperDemo.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapperdemo\\dtos\\sourceclassdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{493AE5BA-1229-461E-9A45-8E713AF2E470}|..\\JMSAutoMapperDemo\\JMSAutoMapperDemo.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapperdemo\\models\\sourceclass.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D075F665-D36C-4332-97DB-E2C7F6BF25C0}|JMSAutoMapper.csproj|d:\\projetos\\10-04-2025\\prj03\\auto mapper\\jmsautomapper\\jmsmapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D075F665-D36C-4332-97DB-E2C7F6BF25C0}|JMSAutoMapper.csproj|solutionrelative:jmsmapper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -23,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 19,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -92,55 +78,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SourceClassDto.cs",
-              "DocumentMoniker": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Dtos\\SourceClassDto.cs",
-              "RelativeDocumentMoniker": "..\\JMSAutoMapperDemo\\Dtos\\SourceClassDto.cs",
-              "ToolTip": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Dtos\\SourceClassDto.cs",
-              "RelativeToolTip": "..\\JMSAutoMapperDemo\\Dtos\\SourceClassDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAADwvwsAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T22:21:15.546Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SourceClass.cs",
-              "DocumentMoniker": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Models\\SourceClass.cs",
-              "RelativeDocumentMoniker": "..\\JMSAutoMapperDemo\\Models\\SourceClass.cs",
-              "ToolTip": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Models\\SourceClass.cs",
-              "RelativeToolTip": "..\\JMSAutoMapperDemo\\Models\\SourceClass.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAADwvwoAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-20T22:16:37.876Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Program.cs",
-              "RelativeDocumentMoniker": "..\\JMSAutoMapperDemo\\Program.cs",
-              "ToolTip": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapperDemo\\Program.cs",
-              "RelativeToolTip": "..\\JMSAutoMapperDemo\\Program.cs",
-              "ViewState": "AgIAADkAAAAAAAAAAAAAAAUAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T11:21:21.992Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "JMSMapper.cs",
-              "DocumentMoniker": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapper\\JMSMapper.cs",
-              "RelativeDocumentMoniker": "JMSMapper.cs",
-              "ToolTip": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapper\\JMSMapper.cs",
-              "RelativeToolTip": "JMSMapper.cs",
-              "ViewState": "AgIAAI8AAAAAAAAAAAAQwJoAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T03:06:06.302Z"
             }
           ]
         }
