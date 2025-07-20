@@ -1,5 +1,6 @@
-Feat: Implement global naming convention configuration
+Feat: Add performance benchmarks
 
-- Added NamingConvention property to MapperConfiguration.
-- Updated GetMappedPropertyName to use the global naming convention.
+- Created JMSAutoMapper.Benchmarks project.
+- Added BenchmarkDotNet and AutoMapper NuGet packages.
+- Implemented simple mapping benchmarks for JMSAutoMapper, AutoMapper, and manual mapping.
 - Updated Checklist.md.
