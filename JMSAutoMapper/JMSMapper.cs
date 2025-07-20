@@ -13,32 +13,32 @@ namespace JMSAutoMapper
     public interface IMapper
     {
         // Método base
-        T? Map<T>(object? source);
+        T Map<T>(object? source);
 
         // Coleções padrão
-        IEnumerable<T>? MapIEnumerable<T>(object? source);
-        List<T>? MapList<T>(object? source);
-        ICollection<T>? MapICollection<T>(object? source);
-        IReadOnlyList<T>? MapIReadOnlyList<T>(object? source);
-        IReadOnlyCollection<T>? MapIReadOnlyCollection<T>(object? source);
-        T[]? MapArray<T>(object? source);
-        HashSet<T>? MapHashSet<T>(object? source);
+        IEnumerable<T> MapIEnumerable<T>(object? source);
+        List<T> MapList<T>(object? source);
+        ICollection<T> MapICollection<T>(object? source);
+        IReadOnlyList<T> MapIReadOnlyList<T>(object? source);
+        IReadOnlyCollection<T> MapIReadOnlyCollection<T>(object? source);
+        T[] MapArray<T>(object? source);
+        HashSet<T> MapHashSet<T>(object? source);
 
         // Dicionários
-        Dictionary<TKey, TValue>? MapDictionary<TKey, TValue>(object? source)
+        Dictionary<TKey, TValue> MapDictionary<TKey, TValue>(object? source)
             where TKey : notnull;
 
         // Coleções imutáveis
-        ImmutableList<T>? MapImmutableList<T>(object? source);
-        ImmutableDictionary<TKey, TValue>? MapImmutableDictionary<TKey, TValue>(object? source)
+        ImmutableList<T> MapImmutableList<T>(object? source);
+        ImmutableDictionary<TKey, TValue> MapImmutableDictionary<TKey, TValue>(object? source)
             where TKey : notnull;
-        ImmutableArray<T>? MapImmutableArray<T>(object? source);
-        ImmutableQueue<T>? MapImmutableQueue<T>(object? source);
-        ImmutableStack<T>? MapImmutableStack<T>(object? source);
+        ImmutableArray<T> MapImmutableArray<T>(object? source);
+        ImmutableQueue<T> MapImmutableQueue<T>(object? source);
+        ImmutableStack<T> MapImmutableStack<T>(object? source);
 
         // Métodos assíncronos
-        Task<T?> MapAsync<T>(object? source);
-        Task<IEnumerable<T>?> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null);
+        Task<T> MapAsync<T>(object? source);
+        Task<IEnumerable<T>> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null);
 
 
     }
@@ -181,14 +181,14 @@ namespace JMSAutoMapper
             _logger = logger;
         }
 
-        public T? Map<T>(object? source)
+        public T Map<T>(object? source)
         {
-            if (source == null) return default;
+            if (source == null) return default!;
             var mappedObjects = new Dictionary<object, object>(ReferenceEqualityComparer.Instance);
-            return MapObject<T>(source, mappedObjects);
+            return MapObject<T>(source, mappedObjects).Result; // Blocking call for sync Map
         }
 
-        protected abstract T MapObject<T>(object source, Dictionary<object, object> mappedObjects);
+        protected abstract Task<T> MapObject<T>(object source, Dictionary<object, object> mappedObjects);
 
         protected object? ConvertValue(object? value, Type targetType)
         {
@@ -264,60 +264,60 @@ namespace JMSAutoMapper
             return properties;
         }
 
-        public IEnumerable<TDestination>? MapIEnumerable<TDestination>(object? source)
+        public IEnumerable<TDestination> MapIEnumerable<TDestination>(object? source)
         {
-            if (source == null) return null;
+            if (source == null) return Enumerable.Empty<TDestination>();
             if (source is not IEnumerable enumerable)
                 throw new ArgumentException("Source must be a collection", nameof(source));
 
             return enumerable.Cast<object>()
                 .Select(item => Map<TDestination>(item))
                 .Where(result => result != null)
-                .ToList()!;
+                .ToList();
         }
 
-        public List<T>? MapList<T>(object? source)
+        public List<T> MapList<T>(object? source)
         {
-            if (source == null) return null;
+            if (source == null) return new List<T>();
             if (source is not IEnumerable enumerable)
                 throw new ArgumentException("Source must be a collection", nameof(source));
 
             return enumerable.Cast<object>()
                 .Select(item => Map<T>(item))
                 .Where(result => result != null)
-                .ToList()!;
+                .ToList();
         }
 
-        public ICollection<T>? MapICollection<T>(object? source)
+        public ICollection<T> MapICollection<T>(object? source)
         {
-            return MapIEnumerable<T>(source)?.ToList();
+            return MapIEnumerable<T>(source).ToList();
         }
 
-        public IReadOnlyList<T>? MapIReadOnlyList<T>(object? source)
+        public IReadOnlyList<T> MapIReadOnlyList<T>(object? source)
         {
-            return MapIEnumerable<T>(source)?.ToList();
+            return MapIEnumerable<T>(source).ToList();
         }
 
-        public IReadOnlyCollection<T>? MapIReadOnlyCollection<T>(object? source)
+        public IReadOnlyCollection<T> MapIReadOnlyCollection<T>(object? source)
         {
-            return MapIEnumerable<T>(source)?.ToList();
+            return MapIEnumerable<T>(source).ToList();
         }
 
-        public T[]? MapArray<T>(object? source)
+        public T[] MapArray<T>(object? source)
         {
-            return MapIEnumerable<T>(source)?.ToArray();
+            return MapIEnumerable<T>(source).ToArray();
         }
 
-        public HashSet<T>? MapHashSet<T>(object? source)
+        public HashSet<T> MapHashSet<T>(object? source)
         {
             var enumerable = MapIEnumerable<T>(source);
-            return enumerable != null ? new HashSet<T>(enumerable) : null;
+            return new HashSet<T>(enumerable);
         }
 
-        public Dictionary<TKey, TValue>? MapDictionary<TKey, TValue>(object? source)
+        public Dictionary<TKey, TValue> MapDictionary<TKey, TValue>(object? source)
             where TKey : notnull
         {
-            if (source == null) return null;
+            if (source == null) return new Dictionary<TKey, TValue>();
             if (source is not IDictionary dictionary)
                 throw new ArgumentException("Source must be a dictionary", nameof(source));
 
@@ -334,59 +334,62 @@ namespace JMSAutoMapper
             return result;
         }
 
-        public ImmutableList<T>? MapImmutableList<T>(object? source)
+        public ImmutableList<T> MapImmutableList<T>(object? source)
         {
-            return MapIEnumerable<T>(source)?.ToImmutableList();
+            return MapIEnumerable<T>(source).ToImmutableList();
         }
 
-        public ImmutableDictionary<TKey, TValue>? MapImmutableDictionary<TKey, TValue>(object? source)
+        public ImmutableDictionary<TKey, TValue> MapImmutableDictionary<TKey, TValue>(object? source)
             where TKey : notnull
         {
-            return MapDictionary<TKey, TValue>(source)?.ToImmutableDictionary();
+            return MapDictionary<TKey, TValue>(source).ToImmutableDictionary();
         }
 
-        public ImmutableArray<T>? MapImmutableArray<T>(object? source)
+        public ImmutableArray<T> MapImmutableArray<T>(object? source)
         {
-            return MapIEnumerable<T>(source)?.ToImmutableArray();
+            return MapIEnumerable<T>(source).ToImmutableArray();
         }
 
-        public ImmutableQueue<T>? MapImmutableQueue<T>(object? source)
-        {
-            var enumerable = MapIEnumerable<T>(source);
-            return enumerable != null ? ImmutableQueue.CreateRange(enumerable) : null;
-        }
-
-        public ImmutableStack<T>? MapImmutableStack<T>(object? source)
+        public ImmutableQueue<T> MapImmutableQueue<T>(object? source)
         {
             var enumerable = MapIEnumerable<T>(source);
-            return enumerable != null ? ImmutableStack.CreateRange(enumerable) : null;
+            return ImmutableQueue.CreateRange(enumerable);
         }
 
-        public Task<T?> MapAsync<T>(object? source)
+        public ImmutableStack<T> MapImmutableStack<T>(object? source)
         {
-            if (source == null) return Task.FromResult<T?>(default);
-            return Task.Run(() => Map<T>(source));
+            var enumerable = MapIEnumerable<T>(source);
+            return ImmutableStack.CreateRange(enumerable);
         }
 
-        public async Task<IEnumerable<T>?> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null)
+        public async Task<T> MapAsync<T>(object? source)
         {
-            if (source == null) return await Task.FromResult<IEnumerable<T>?>(null);
+            if (source == null) return default!;
+            var mappedObjects = new Dictionary<object, object>(ReferenceEqualityComparer.Instance);
+            return await MapObject<T>(source, mappedObjects);
+        }
+
+        public async Task<IEnumerable<T>> MapIEnumerableAsync<T>(object? source, int? maxDegreeOfParallelism = null)
+        {
+            if (source == null) return Enumerable.Empty<T>();
             if (source is not IEnumerable enumerable)
-                return await Task.FromException<IEnumerable<T>?>(new ArgumentException("Source must be a collection", nameof(source)));
+                throw new ArgumentException("Source must be a collection", nameof(source));
 
-            return await Task.Run(() =>
-              {
-                  var query = enumerable.Cast<object>().AsParallel();
-                  if (maxDegreeOfParallelism.HasValue)
-                  {
-                      query = query.WithDegreeOfParallelism(maxDegreeOfParallelism.Value);
-                  }
+            var mappedObjects = new Dictionary<object, object>(ReferenceEqualityComparer.Instance);
 
-                  return query
-                      .Select(item => Map<T>(item))
-                      .Where(result => result != null)
-                      .ToList() as IEnumerable<T>;
-              });
+            var query = enumerable.Cast<object>();
+
+            if (maxDegreeOfParallelism.HasValue && maxDegreeOfParallelism.Value > 0)
+            {
+                return await Task.WhenAll(query.AsParallel().WithDegreeOfParallelism(maxDegreeOfParallelism.Value)
+                    .Select(item => MapObject<T>(item, mappedObjects)))
+                    .ContinueWith(t => t.Result.Where(result => result != null).ToList() as IEnumerable<T>);
+            }
+            else
+            {
+                return await Task.WhenAll(query.Select(item => MapObject<T>(item, mappedObjects)))
+                    .ContinueWith(t => t.Result.Where(result => result != null).ToList() as IEnumerable<T>);
+            }
         }
     }
 
@@ -408,7 +411,7 @@ namespace JMSAutoMapper
 
         private MapperConfiguration? GetActiveConfig() => _instanceConfig ?? _staticConfig;
 
-        protected override T MapObject<T>(object source, Dictionary<object, object> mappedObjects)
+        protected override async Task<T> MapObject<T>(object source, Dictionary<object, object> mappedObjects)
         {
             if (source == null)
             {
@@ -416,7 +419,7 @@ namespace JMSAutoMapper
                 {
                     throw new ArgumentNullException(nameof(source), $"Não é possível mapear uma origem nula para um tipo de valor não anulável '{typeof(T).Name}'.");
                 }
-                return default; // Para tipos de referência ou tipos de valor anuláveis, retorna null.
+                return default!; // Para tipos de referência ou tipos de valor anuláveis, retorna null.
             }
 
             if (mappedObjects.TryGetValue(source, out var existing))
@@ -427,11 +430,11 @@ namespace JMSAutoMapper
 
             var mapper = _compiledMappers.GetOrAdd((sourceType, targetType), key => CreateMapperDelegate(key.Source, key.Target));
 
-            var result = ((Func<object, Dictionary<object, object>, object>)mapper)(source, mappedObjects);
+            var result = await ((Func<object, Dictionary<object, object>, Task<object>>)mapper)(source, mappedObjects);
             return (T)result;
         }
 
-        private object? MapObject(Type targetType, object source, Dictionary<object, object> mappedObjects)
+        private async Task<object?> MapObject(Type targetType, object source, Dictionary<object, object> mappedObjects)
         {
             if (source == null) return null;
 
@@ -447,7 +450,7 @@ namespace JMSAutoMapper
 
             var mapper = _compiledMappers.GetOrAdd((sourceType, targetType), key => CreateMapperDelegate(key.Source, key.Target));
 
-            return ((Func<object, Dictionary<object, object>, object>)mapper)(source, mappedObjects);
+            return await ((Func<object, Dictionary<object, object>, Task<object>>)mapper)(source, mappedObjects);
         }
 
         private Delegate CreateMapperDelegate(Type sourceType, Type targetType)
@@ -536,25 +539,30 @@ namespace JMSAutoMapper
 
                     if (IsCollection(targetProperty.PropertyType))
                     {
-                        var mappedCollection = Expression.Call(
+                        var mapCollectionHelperCall = Expression.Call(
                             thisInstance,
                             mapCollectionHelperMethod,
                             Expression.Convert(sourcePropertyAccess, typeof(IEnumerable)),
                             Expression.Constant(targetProperty.PropertyType),
                             mappedObjectsParam
                         );
-                        assignment = Expression.Assign(Expression.Property(resultVar, targetProperty), Expression.Convert(mappedCollection, targetProperty.PropertyType));
+                        // Access the Result property of the Task<object>
+                        var getCollectionResult = Expression.Property(mapCollectionHelperCall, "Result");
+                        assignment = Expression.Assign(Expression.Property(resultVar, targetProperty), Expression.Convert(getCollectionResult, targetProperty.PropertyType));
                     }
                     else if (IsComplexType(targetProperty.PropertyType))
                     {
-                        var mappedObject = Expression.Call(
+                        // Call the async MapObject and get its Result synchronously within the expression tree
+                        var mapObjectCall = Expression.Call(
                             thisInstance,
                             mapObjectMethod,
                             Expression.Constant(targetProperty.PropertyType),
                             Expression.Convert(sourcePropertyAccess, typeof(object)),
                             mappedObjectsParam
                         );
-                        assignment = Expression.Assign(Expression.Property(resultVar, targetProperty), Expression.Convert(mappedObject, targetProperty.PropertyType));
+                        // Access the Result property of the Task<object>
+                        var getResult = Expression.Property(mapObjectCall, "Result");
+                        assignment = Expression.Assign(Expression.Property(resultVar, targetProperty), Expression.Convert(getResult, targetProperty.PropertyType));
                     }
                     else
                     {
@@ -595,10 +603,11 @@ namespace JMSAutoMapper
                 }
             }
 
-            expressions.Add(Expression.Convert(resultVar, typeof(object)));
+            // Wrap the final result in Task.FromResult
+            expressions.Add(Expression.Call(typeof(Task).GetMethod(nameof(Task.FromResult), BindingFlags.Static | BindingFlags.Public)!.MakeGenericMethod(typeof(object)), Expression.Convert(resultVar, typeof(object))));
 
             var body = Expression.Block(new[] { sourceVar, resultVar }, expressions);
-            var lambda = Expression.Lambda<Func<object, Dictionary<object, object>, object>>(body, sourceParam, mappedObjectsParam);
+            var lambda = Expression.Lambda<Func<object, Dictionary<object, object>, Task<object>>>(body, sourceParam, mappedObjectsParam);
             return lambda.Compile();
         }
 
@@ -614,7 +623,7 @@ namespace JMSAutoMapper
             return targetPropertyName;
         }
 
-        private object? MapCollectionHelper(IEnumerable? sourceEnumerable, Type targetCollectionType, Dictionary<object, object> mappedObjects)
+        private async Task<object?> MapCollectionHelper(IEnumerable? sourceEnumerable, Type targetCollectionType, Dictionary<object, object> mappedObjects)
         {
             if (sourceEnumerable == null) return null;
 
@@ -625,7 +634,7 @@ namespace JMSAutoMapper
             foreach (var item in sourceEnumerable)
             {
                 if (item == null) continue;
-                var mappedItem = MapObject(itemType, item, mappedObjects);
+                var mappedItem = await MapObject(itemType, item, mappedObjects);
                 if (mappedItem != null)
                 {
                     mappedList.Add(mappedItem);
