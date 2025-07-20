@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JMSAutoMapper.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d7176ad08e272bf452354e9898cc482d87ddfc8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e82c607de9aa47f80a963b3edd2327607f46b52")]
 [assembly: System.Reflection.AssemblyProductAttribute("JMSAutoMapper.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JMSAutoMapper.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
