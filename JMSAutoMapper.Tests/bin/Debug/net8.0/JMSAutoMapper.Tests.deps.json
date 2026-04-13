@@ -8,8 +8,10 @@
     ".NETCoreApp,Version=v8.0": {
       "JMSAutoMapper.Tests/1.0.0": {
         "dependencies": {
-          "JMSAutoMapper": "1.0.8",
+          "FluentAssertions": "8.8.0",
+          "JMSAutoMapper": "1.0.14",
           "JMSAutoMapperDemo": "1.0.0",
+          "Microsoft.Extensions.DependencyInjection": "8.0.0",
           "Microsoft.NET.Test.Sdk": "17.8.0",
           "coverlet.collector": "6.0.0",
           "xunit": "2.5.3",
@@ -20,11 +22,30 @@
         }
       },
       "coverlet.collector/6.0.0": {},
+      "FluentAssertions/8.8.0": {
+        "runtime": {
+          "lib/net6.0/FluentAssertions.dll": {
+            "assemblyVersion": "8.8.0.0",
+            "fileVersion": "8.8.0.0"
+          }
+        }
+      },
       "Microsoft.CodeCoverage/17.8.0": {
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.VisualStudio.CodeCoverage.Shim.dll": {
             "assemblyVersion": "15.0.0.0",
             "fileVersion": "17.800.623.45702"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection/8.0.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.5"
+        },
+        "runtime": {
+          "lib/net8.0/Microsoft.Extensions.DependencyInjection.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53103"
           }
         }
       },
@@ -445,26 +466,6 @@
           "System.Threading.Tasks": "4.3.0"
         }
       },
-      "System.Collections.Immutable/9.0.4": {
-        "runtime": {
-          "lib/net8.0/System.Collections.Immutable.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.425.16305"
-          }
-        }
-      },
-      "System.Configuration.ConfigurationManager/9.0.4": {
-        "dependencies": {
-          "System.Diagnostics.EventLog": "9.0.4",
-          "System.Security.Cryptography.ProtectedData": "9.0.4"
-        },
-        "runtime": {
-          "lib/net8.0/System.Configuration.ConfigurationManager.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.425.16305"
-          }
-        }
-      },
       "System.Console/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -488,28 +489,6 @@
           "System.Reflection": "4.3.0",
           "System.Runtime": "4.3.0",
           "System.Threading": "4.3.0"
-        }
-      },
-      "System.Diagnostics.EventLog/9.0.4": {
-        "runtime": {
-          "lib/net8.0/System.Diagnostics.EventLog.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.425.16305"
-          }
-        },
-        "runtimeTargets": {
-          "runtimes/win/lib/net8.0/System.Diagnostics.EventLog.Messages.dll": {
-            "rid": "win",
-            "assetType": "runtime",
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/win/lib/net8.0/System.Diagnostics.EventLog.dll": {
-            "rid": "win",
-            "assetType": "runtime",
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.425.16305"
-          }
         }
       },
       "System.Diagnostics.Tools/4.3.0": {
@@ -766,25 +745,6 @@
           "Microsoft.NETCore.Targets": "1.1.0"
         }
       },
-      "System.Runtime.Caching/9.0.4": {
-        "dependencies": {
-          "System.Configuration.ConfigurationManager": "9.0.4"
-        },
-        "runtime": {
-          "lib/net8.0/System.Runtime.Caching.dll": {
-            "assemblyVersion": "9.0.0.4",
-            "fileVersion": "9.0.425.16305"
-          }
-        },
-        "runtimeTargets": {
-          "runtimes/win/lib/net8.0/System.Runtime.Caching.dll": {
-            "rid": "win",
-            "assetType": "runtime",
-            "assemblyVersion": "9.0.0.4",
-            "fileVersion": "9.0.425.16305"
-          }
-        }
-      },
       "System.Runtime.Extensions/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -920,14 +880,6 @@
           "System.Runtime": "4.3.0",
           "System.Threading": "4.3.0",
           "System.Threading.Tasks": "4.3.0"
-        }
-      },
-      "System.Security.Cryptography.ProtectedData/9.0.4": {
-        "runtime": {
-          "lib/net8.0/System.Security.Cryptography.ProtectedData.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.425.16305"
-          }
         }
       },
       "System.Security.Cryptography.X509Certificates/4.3.0": {
@@ -1099,22 +1051,20 @@
         }
       },
       "xunit.runner.visualstudio/2.5.3": {},
-      "JMSAutoMapper/1.0.8": {
+      "JMSAutoMapper/1.0.14": {
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.5",
-          "System.Collections.Immutable": "9.0.4",
-          "System.Runtime.Caching": "9.0.4"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.5"
         },
         "runtime": {
           "JMSAutoMapper.dll": {
-            "assemblyVersion": "1.0.2.3",
-            "fileVersion": "1.0.2.3"
+            "assemblyVersion": "1.0.2.6",
+            "fileVersion": "1.0.2.6"
           }
         }
       },
       "JMSAutoMapperDemo/1.0.0": {
         "dependencies": {
-          "JMSAutoMapper": "1.0.8"
+          "JMSAutoMapper": "1.0.14"
         },
         "runtime": {
           "JMSAutoMapperDemo.dll": {
@@ -1138,12 +1088,26 @@
       "path": "coverlet.collector/6.0.0",
       "hashPath": "coverlet.collector.6.0.0.nupkg.sha512"
     },
+    "FluentAssertions/8.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-m0kwcqBwvVel03FuMa7Ozo/oTaxYbjeNlcOhQFkyQpwX/8wks6RNl/Jnn58DCZVs6c2oG1RsCZw7HfKSaxLm3w==",
+      "path": "fluentassertions/8.8.0",
+      "hashPath": "fluentassertions.8.8.0.nupkg.sha512"
+    },
     "Microsoft.CodeCoverage/17.8.0": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-KC8SXWbGIdoFVdlxKk9WHccm0llm9HypcHMLUUFabRiTS3SO2fQXNZfdiF3qkEdTJhbRrxhdRxjL4jbtwPq4Ew==",
       "path": "microsoft.codecoverage/17.8.0",
       "hashPath": "microsoft.codecoverage.17.8.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-V8S3bsm50ig6JSyrbcJJ8bW2b9QLGouz+G1miK3UTaOWmMtFwNNNzUf4AleyDWUmTrWMLNnFSLEQtxmxgNQnNQ==",
+      "path": "microsoft.extensions.dependencyinjection/8.0.0",
+      "hashPath": "microsoft.extensions.dependencyinjection.8.0.0.nupkg.sha512"
     },
     "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.5": {
       "type": "package",
@@ -1355,20 +1319,6 @@
       "path": "system.collections.concurrent/4.3.0",
       "hashPath": "system.collections.concurrent.4.3.0.nupkg.sha512"
     },
-    "System.Collections.Immutable/9.0.4": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-wfm2NgK22MmBe5qJjp52qzpkeDZKb4l9LbdubhZSehY1z4LS+lld6R+B+UQNb2AZRHu/QJlHxEUcRst5hIEejg==",
-      "path": "system.collections.immutable/9.0.4",
-      "hashPath": "system.collections.immutable.9.0.4.nupkg.sha512"
-    },
-    "System.Configuration.ConfigurationManager/9.0.4": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-dvjqKp+2LpGid6phzrdrS/2mmEPxFl3jE1+L7614q4ZChKbLJCpHXg6sBILlCCED1t//EE+un/UdAetzIMpqnw==",
-      "path": "system.configuration.configurationmanager/9.0.4",
-      "hashPath": "system.configuration.configurationmanager.9.0.4.nupkg.sha512"
-    },
     "System.Console/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -1389,13 +1339,6 @@
       "sha512": "sha512-tD6kosZnTAGdrEa0tZSuFyunMbt/5KYDnHdndJYGqZoNy00XVXyACd5d6KnE1YgYv3ne2CjtAfNXo/fwEhnKUA==",
       "path": "system.diagnostics.diagnosticsource/4.3.0",
       "hashPath": "system.diagnostics.diagnosticsource.4.3.0.nupkg.sha512"
-    },
-    "System.Diagnostics.EventLog/9.0.4": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-getRQEXD8idlpb1KW56XuxImMy0FKp2WJPDf3Qr0kI/QKxxJSftqfDFVo0DZ3HCJRLU73qHSruv5q2l5O47jQQ==",
-      "path": "system.diagnostics.eventlog/9.0.4",
-      "hashPath": "system.diagnostics.eventlog.9.0.4.nupkg.sha512"
     },
     "System.Diagnostics.Tools/4.3.0": {
       "type": "package",
@@ -1579,13 +1522,6 @@
       "path": "system.runtime/4.3.0",
       "hashPath": "system.runtime.4.3.0.nupkg.sha512"
     },
-    "System.Runtime.Caching/9.0.4": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-ePDc9MvE/9QXeY6lU4Y85hjOSRzqdDF1XlqINhpThLKV33PYC2fLu/fadwDCWplq3mSef7Fof3vui3FUWpUp6w==",
-      "path": "system.runtime.caching/9.0.4",
-      "hashPath": "system.runtime.caching.9.0.4.nupkg.sha512"
-    },
     "System.Runtime.Extensions/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -1662,13 +1598,6 @@
       "sha512": "sha512-7bDIyVFNL/xKeFHjhobUAQqSpJq9YTOpbEs6mR233Et01STBMXNAc/V+BM6dwYGc95gVh/Zf+iVXWzj3mE8DWg==",
       "path": "system.security.cryptography.primitives/4.3.0",
       "hashPath": "system.security.cryptography.primitives.4.3.0.nupkg.sha512"
-    },
-    "System.Security.Cryptography.ProtectedData/9.0.4": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-o94k2RKuAce3GeDMlUvIXlhVa1kWpJw95E6C9LwW0KlG0nj5+SgCiIxJ2Eroqb9sLtG1mEMbFttZIBZ13EJPvQ==",
-      "path": "system.security.cryptography.protecteddata/9.0.4",
-      "hashPath": "system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
     },
     "System.Security.Cryptography.X509Certificates/4.3.0": {
       "type": "package",
@@ -1796,7 +1725,7 @@
       "path": "xunit.runner.visualstudio/2.5.3",
       "hashPath": "xunit.runner.visualstudio.2.5.3.nupkg.sha512"
     },
-    "JMSAutoMapper/1.0.8": {
+    "JMSAutoMapper/1.0.14": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -58,6 +58,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[8.8.0, )"
+            },
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
               "version": "[8.0.0, )"
@@ -95,7 +99,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
@@ -165,12 +169,12 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
     "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapper\\JMSAutoMapper.csproj": {
-      "version": "1.0.8",
+      "version": "1.0.14",
       "restore": {
         "projectUniqueName": "D:\\Projetos\\10-04-2025\\Prj03\\Auto Mapper\\JMSAutoMapper\\JMSAutoMapper.csproj",
         "projectName": "JMSAutoMapper",
@@ -219,14 +223,6 @@
             "Microsoft.Extensions.DependencyInjection.Abstractions": {
               "target": "Package",
               "version": "[9.0.5, )"
-            },
-            "System.Collections.Immutable": {
-              "target": "Package",
-              "version": "[9.0.4, )"
-            },
-            "System.Runtime.Caching": {
-              "target": "Package",
-              "version": "[9.0.4, )"
             }
           },
           "imports": [
@@ -245,7 +241,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

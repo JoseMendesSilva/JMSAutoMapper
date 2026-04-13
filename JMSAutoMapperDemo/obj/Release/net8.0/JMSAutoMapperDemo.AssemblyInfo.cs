@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("JMSAutoMapperDemo")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("José Mendes da Silva")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
+[assembly: System.Reflection.AssemblyDescriptionAttribute("Biblioteca para mapeamento de objeto-objeto para .NET")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6c09d6613f9149661902a8697c0137b3a72b22c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("JMSAutoMapperDemo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JMSAutoMapperDemo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

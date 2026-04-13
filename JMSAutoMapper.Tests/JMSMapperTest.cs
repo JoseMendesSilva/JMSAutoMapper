@@ -4,7 +4,7 @@ using JMSAutoMapper;
 using JMSAutoMapperDemo.Dtos;
 using JMSAutoMapperDemo.Models;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using System.Runtime.Caching;
+//using System.Runtime.Caching;
 
 namespace JMSAutoMapper.Tests;
 
@@ -14,8 +14,7 @@ public partial class JMSMapperTest
     [Trait("S/O", "Should Map Correctly")]
     public void Map_SimpleObject_ShouldMapCorrectly()
     {
-        //Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var source = new Cliente { ClienteId = 1, Name = "Test", Age = 25 };
 
         // Act
@@ -33,7 +32,7 @@ public partial class JMSMapperTest
     public void Map_ComplexObject_ShouldMapCorrectly()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var source = new Cliente
         {
             ClienteId = 1,
@@ -41,8 +40,8 @@ public partial class JMSMapperTest
             Age = 25,
             Enderecos = new List<Endereco>
             {
-                new Endereco { EnderecoId = 1, Logradouro = "Item 1" },
-                new Endereco { EnderecoId = 2, Logradouro = "Item 2" }
+                new Endereco { EnderecoId = 1, Logradouro = "Street 1" },
+                new Endereco { EnderecoId = 2, Logradouro = "Street 2" }
             }
         };
 
@@ -70,7 +69,7 @@ public partial class JMSMapperTest
     public void Map_IntToString_ShouldMapCorrectly()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var source = new Cliente { ClienteId = 1, Name = "123", Age = 25 };
 
         // Act
@@ -86,8 +85,8 @@ public partial class JMSMapperTest
     public void Map_NullSource_ShouldReturnNull()
     {
         // Arrange
-        var mapper = new JMSMapper();
-        Cliente source = null!;
+        var mapper = new JMSMapper(new MapperConfiguration());
+        Cliente? source = null;
 
         // Act
         var result = mapper.Map<ClienteDto>(source);
@@ -102,7 +101,7 @@ public partial class JMSMapperTest
     {
         // Arrange
         var origem = new Cliente { ClienteId = 1, Name = "Test", Age = 25 };
-        var mapper = new JMSMapper(); // Substitua pelo seu mapper
+        var mapper = new JMSMapper(new MapperConfiguration()); // Substitua pelo seu mapper
 
         // Act
         var destino = mapper.Map<ClienteDto>(origem);
@@ -119,7 +118,7 @@ public partial class JMSMapperTest
     {
         // Arrange
         Cliente origem = null!;
-        var mapper = new JMSMapper(); // Substitua pelo seu mapper
+        var mapper = new JMSMapper(new MapperConfiguration()); // Substitua pelo seu mapper
 
         // Act
         var result = mapper.Map<ClienteDto>(origem);

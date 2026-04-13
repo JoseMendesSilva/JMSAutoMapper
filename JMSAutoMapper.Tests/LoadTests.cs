@@ -22,7 +22,7 @@ public class LoadTests
     public void Map_100000Objects_ShouldCompleteInReasonableTime()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = Enumerable.Range(1, 100000)
             .Select(i => new TestEntity
             {

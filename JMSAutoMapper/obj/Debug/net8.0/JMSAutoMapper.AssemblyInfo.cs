@@ -17,11 +17,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Framework para a transferência de Dados entre objetos. Inclusive, entre objetos r" +
     "elacionais. Este pacote é um pacote Demo, em sua versão atual, e pode se usado l" +
     "ivremente, desde de que respeito os direitos autorais.")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.2.3")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.8+8c5ca2d9d3a2e1d2abc44e3c6ce632db32bf83cd")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.2.6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.14+6c09d6613f9149661902a8697c0137b3a72b22c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("JMSAutoMapper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JMSAutoMapper")]
-[assembly: System.Reflection.AssemblyVersionAttribute("1.0.2.3")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.2.6")]
 
 // Gerado pela classe WriteCodeFragment do MSBuild.
 

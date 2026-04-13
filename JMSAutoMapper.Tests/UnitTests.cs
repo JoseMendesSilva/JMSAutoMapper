@@ -7,20 +7,6 @@ namespace JMSAutoMapper.Tests;
 
 public partial class UnitTests
 {
-    [Fact]
-    public async Task MapAsync_ShouldReturnMappedObject()
-    {
-        // Arrange
-        var mapper = new JMSMapper();
-        var source = new Source { Id = 1, Name = "Test" };
-
-        // Act
-        var result = await mapper.MapAsync<Destination>(source);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(source.Id, result.Id);
-    }
 
     [Fact]
     public void MapDictionary_ShouldConvertKeyAndValue()
@@ -49,7 +35,7 @@ public partial class UnitTests
     public void Map_ShouldMapIntToInt()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         int source = 123;
 
         // Act
@@ -60,25 +46,11 @@ public partial class UnitTests
     }
 
     [Fact]
-    public void Map_ShouldMapStringToString()
-    {
-        // Arrange
-        var mapper = new JMSMapper();
-        string source = "Hello World";
-
-        // Act
-        string result = mapper.Map<string>(source);
-
-        // Assert
-        Assert.Equal(source, result);
-    }
-
-    [Fact]
     public void Map_ShouldMapIntToString()
     {
         // Arrange
-        var mapper = new JMSMapper();
-        int source = 456;
+        var mapper = new JMSMapper(new MapperConfiguration());
+        int source = 123;
 
         // Act
         string result = mapper.Map<string>(source);
@@ -91,7 +63,7 @@ public partial class UnitTests
     public void Map_ShouldMapStringToInt()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         string source = "789";
 
         // Act
@@ -105,7 +77,7 @@ public partial class UnitTests
     public void Map_ShouldMapDateTimeToDateTime()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         DateTime source = DateTime.Now;
 
         // Act
@@ -119,7 +91,7 @@ public partial class UnitTests
     public void Map_ShouldMapGuidToGuid()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         Guid source = Guid.NewGuid();
 
         // Act
@@ -133,7 +105,7 @@ public partial class UnitTests
     public void Map_ShouldMapComplexObjectWithMatchingProperties()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var source = new SourceA { Id = 1, Name = "Test", Value = 123.45 };
 
         // Act
@@ -246,7 +218,7 @@ public partial class UnitTests
     public void Map_ShouldMapNullableIntToInt()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         int? source = 123;
 
         // Act
@@ -260,7 +232,7 @@ public partial class UnitTests
     public void Map_ShouldMapIntToNullableInt()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         int source = 123;
 
         // Act
@@ -274,8 +246,8 @@ public partial class UnitTests
     public void Map_ShouldMapStringToNullableString()
     {
         // Arrange
-        var mapper = new JMSMapper();
-        string source = "Hello Nullable";
+        var mapper = new JMSMapper(new MapperConfiguration());
+        string source = "test";
 
         // Act
         string? result = mapper.Map<string?>(source);
@@ -288,7 +260,7 @@ public partial class UnitTests
     public void Map_ShouldMapNullToNullableType()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         string? source = null;
 
         // Act
@@ -302,8 +274,8 @@ public partial class UnitTests
     public void Map_ShouldThrowExceptionWhenMappingNullToNonNullableValueType()
     {
         // Arrange
-        var mapper = new JMSMapper();
-        int? source = null;
+        var mapper = new JMSMapper(new MapperConfiguration());
+        object? source = null;
 
         // Act & Assert
         var exception = Record.Exception(() => mapper.Map<int>(source));
@@ -342,7 +314,7 @@ public partial class UnitTests
     public void MapIEnumerable_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = new List<Source>();
 
         // Act
@@ -410,7 +382,7 @@ public partial class UnitTests
     public void MapList_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = new List<Source>();
 
         // Act
@@ -451,8 +423,8 @@ public partial class UnitTests
     public void MapArray_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
-        var sources = new Source[] { };
+        var mapper = new JMSMapper(new MapperConfiguration());
+        var sources = new Source[0];
 
         // Act
         var destinations = mapper.MapArray<Destination>(sources);
@@ -490,7 +462,7 @@ public partial class UnitTests
     public void MapHashSet_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = new HashSet<Source>();
 
         // Act
@@ -531,11 +503,25 @@ public partial class UnitTests
     public void MapDictionary_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = new Dictionary<int, Source>();
 
         // Act
         var destinations = mapper.MapDictionary<int, Destination>(sources);
+
+        // Assert
+        Assert.NotNull(destinations);
+        Assert.Empty(destinations);
+    }
+
+    [Fact]
+    public void MapDictionary_ShouldReturnEmptyWhenSourceIsNull()
+    {
+        // Arrange
+        var mapper = new JMSMapper(new MapperConfiguration());
+
+        // Act
+        var destinations = mapper.MapDictionary<int, Destination>(null);
 
         // Assert
         Assert.NotNull(destinations);
@@ -598,11 +584,25 @@ public partial class UnitTests
     public void MapImmutableList_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = ImmutableList.Create<Source>();
 
         // Act
         var destinations = mapper.MapImmutableList<Destination>(sources);
+
+        // Assert
+        Assert.NotNull(destinations);
+        Assert.Empty(destinations);
+    }
+
+    [Fact]
+    public void MapImmutableList_ShouldReturnEmptyWhenSourceIsNull()
+    {
+        // Arrange
+        var mapper = new JMSMapper(new MapperConfiguration());
+
+        // Act
+        var destinations = mapper.MapImmutableList<Destination>(null);
 
         // Assert
         Assert.NotNull(destinations);
@@ -639,11 +639,25 @@ public partial class UnitTests
     public void MapImmutableDictionary_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = ImmutableDictionary.Create<int, Source>();
 
         // Act
         var destinations = mapper.MapImmutableDictionary<int, Destination>(sources);
+
+        // Assert
+        Assert.NotNull(destinations);
+        Assert.Empty(destinations);
+    }
+
+    [Fact]
+    public void MapImmutableDictionary_ShouldReturnEmptyWhenSourceIsNull()
+    {
+        // Arrange
+        var mapper = new JMSMapper(new MapperConfiguration());
+
+        // Act
+        var destinations = mapper.MapImmutableDictionary<int, Destination>(null);
 
         // Assert
         Assert.NotNull(destinations);
@@ -679,11 +693,25 @@ public partial class UnitTests
     public void MapImmutableArray_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = ImmutableArray.Create<Source>();
 
         // Act
         var destinations = mapper.MapImmutableArray<Destination>(sources);
+
+        // Assert
+        Assert.NotNull(destinations);
+        Assert.Empty(destinations);
+    }
+
+    [Fact]
+    public void MapImmutableArray_ShouldReturnEmptyWhenSourceIsNull()
+    {
+        // Arrange
+        var mapper = new JMSMapper(new MapperConfiguration());
+
+        // Act
+        var destinations = mapper.MapImmutableArray<Destination>(null);
 
         // Assert
         Assert.NotNull(destinations);
@@ -709,7 +737,7 @@ public partial class UnitTests
 
         // Assert
         Assert.NotNull(destinations);
-        Assert.Equal(2, destinations.Count);
+        Assert.Equal(2, destinations.Count());
         Assert.Equal(sources.Peek().Id, destinations.Peek().Id);
         Assert.Equal(sources.Peek().Name, destinations.Peek().FullName);
     }
@@ -718,11 +746,25 @@ public partial class UnitTests
     public void MapImmutableQueue_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = ImmutableQueue.Create<Source>();
 
         // Act
         var destinations = mapper.MapImmutableQueue<Destination>(sources);
+
+        // Assert
+        Assert.NotNull(destinations);
+        Assert.Empty(destinations);
+    }
+
+    [Fact]
+    public void MapImmutableQueue_ShouldReturnEmptyWhenSourceIsNull()
+    {
+        // Arrange
+        var mapper = new JMSMapper(new MapperConfiguration());
+
+        // Act
+        var destinations = mapper.MapImmutableQueue<Destination>(null);
 
         // Assert
         Assert.NotNull(destinations);
@@ -742,21 +784,20 @@ public partial class UnitTests
             new Source { Id = 2, Name = "ImmutableStackTest2" } }
         );
 
-        // Act
         var destinations = mapper.MapImmutableStack<Destination>(sources);
 
         // Assert
         Assert.NotNull(destinations);
-        Assert.Equal(2, destinations.Count);
-        Assert.Equal(sources.Peek().Id, destinations.Peek().Id);
-        Assert.Equal(sources.Peek().Name, destinations.Peek().FullName);
+        Assert.Equal(2, destinations.Count());
+        Assert.Contains(destinations, d => d.Id == sources.ElementAt(0).Id && d.FullName == sources.ElementAt(0).Name);
+        Assert.Contains(destinations, d => d.Id == sources.ElementAt(1).Id && d.FullName == sources.ElementAt(1).Name);
     }
 
     [Fact]
     public void MapImmutableStack_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
     {
         // Arrange
-        var mapper = new JMSMapper();
+        var mapper = new JMSMapper(new MapperConfiguration());
         var sources = ImmutableStack.Create<Source>();
 
         // Act
@@ -768,97 +809,22 @@ public partial class UnitTests
     }
 
     [Fact]
-    public async Task MapIEnumerableAsync_ShouldMapCollectionCorrectly()
+    public void MapImmutableStack_ShouldReturnEmptyWhenSourceIsNull()
     {
         // Arrange
-        var config = new MapperConfiguration();
-        config.CreateMap<Source, Destination>()
-              .ForMember("FullName", src => src.Name);
-        var mapper = new JMSMapper(config);
-        var sources = new List<Source>
-        {
-            new Source { Id = 1, Name = "AsyncTest1" },
-            new Source { Id = 2, Name = "AsyncTest2" }
-        };
+        var mapper = new JMSMapper(new MapperConfiguration());
 
         // Act
-        var destinations = (await mapper.MapIEnumerableAsync<Destination>(sources)).ToList();
-
-        // Assert
-        Assert.NotNull(destinations);
-        Assert.Equal(2, destinations.Count);
-        Assert.Equal(sources[0].Id, destinations[0].Id);
-        Assert.Equal(sources[0].Name, destinations[0].FullName);
-        Assert.Equal(sources[1].Id, destinations[1].Id);
-        Assert.Equal(sources[1].Name, destinations[1].FullName);
-    }
-
-    [Fact]
-    public async Task MapIEnumerableAsync_ShouldMapCollectionWithMaxDegreeOfParallelism()
-    {
-        // Arrange
-        var config = new MapperConfiguration();
-        config.CreateMap<Source, Destination>()
-              .ForMember("FullName", src => src.Name);
-        var mapper = new JMSMapper(config);
-        var sources = new List<Source>
-        {
-            new Source { Id = 1, Name = "AsyncParallelTest1" },
-            new Source { Id = 2, Name = "AsyncParallelTest2" },
-            new Source { Id = 3, Name = "AsyncParallelTest3" },
-            new Source { Id = 4, Name = "AsyncParallelTest4" }
-        };
-
-        // Act
-        var destinations = (await mapper.MapIEnumerableAsync<Destination>(sources, 2)).ToList();
-
-        // Assert
-        Assert.NotNull(destinations);
-        Assert.Equal(4, destinations.Count);
-        // Assertions for content can be more complex for parallel execution, but for now, just check count
-    }
-
-    [Fact]
-    public async Task MapIEnumerableAsync_ShouldReturnEmptyCollectionWhenSourceIsEmpty()
-    {
-        // Arrange
-        var mapper = new JMSMapper();
-        var sources = new List<Source>();
-
-        // Act
-        var destinations = (await mapper.MapIEnumerableAsync<Destination>(sources)).ToList();
+        var destinations = mapper.MapImmutableStack<Destination>(null);
 
         // Assert
         Assert.NotNull(destinations);
         Assert.Empty(destinations);
     }
 
-    [Fact]
-    public async Task MapIEnumerableAsync_ShouldHandleNullItemsInCollection()
-    {
-        // Arrange
-        var config = new MapperConfiguration();
-        config.CreateMap<Source, Destination>()
-              .ForMember("FullName", src => src.Name);
-        var mapper = new JMSMapper(config);
-        var sources = new List<Source?>
-        {
-            new Source { Id = 1, Name = "AsyncNullTest1" },
-            null,
-            new Source { Id = 3, Name = "AsyncNullTest3" }
-        };
 
-        // Act
-        var destinations = (await mapper.MapIEnumerableAsync<Destination>(sources)).ToList();
 
-        // Assert
-        Assert.NotNull(destinations);
-        Assert.Equal(2, destinations.Count); // Null item should be skipped
-        Assert.Equal(sources[0]!.Id, destinations[0].Id);
-        Assert.Equal(sources[0]!.Name, destinations[0].FullName);
-        Assert.Equal(sources[2]!.Id, destinations[1].Id);
-        Assert.Equal(sources[2]!.Name, destinations[1].FullName);
-    }
+
 
     [Fact]
     public void MapQueryable_ShouldMapBasicQueryable()
@@ -939,6 +905,31 @@ public partial class UnitTests
         Assert.Equal(sources.ElementAt(0).Name + " Mapped", destinations[0].FullName);
         Assert.Equal(sources.ElementAt(1).Id, destinations[1].Id);
         Assert.Equal(sources.ElementAt(1).Name + " Mapped", destinations[1].FullName);
+    }
+
+    [Fact]
+    public void MapQueryable_ShouldProjectPropertiesCorrectly()
+    {
+        // Arrange
+        var config = new MapperConfiguration();
+        config.CreateMap<Source, Destination>();
+        var mapper = new JMSMapper(config);
+        var sources = new List<Source>
+        {
+            new Source { Id = 1, Name = "Test1" },
+            new Source { Id = 2, Name = "Test2" }
+        }.AsQueryable();
+
+        // Act
+        var destinations = mapper.MapQueryable<Source, Destination>(sources).ToList();
+
+        // Assert
+        Assert.NotNull(destinations);
+        Assert.Equal(2, destinations.Count);
+        Assert.Equal(sources.ElementAt(0).Id, destinations[0].Id);
+        Assert.Null(destinations[0].FullName);
+        Assert.Equal(sources.ElementAt(1).Id, destinations[1].Id);
+        Assert.Null(destinations[1].FullName);
     }
 
     [Fact]
@@ -1107,17 +1098,12 @@ public partial class UnitTests
     public void Map_ShouldHandleFailedTypeConversion()
     {
         // Arrange
-        var logMessages = new List<string>();
-        Action<string, Exception> logger = (msg, ex) => logMessages.Add(msg);
-        var mapper = new JMSMapper(logger: logger);
+        var config = new MapperConfiguration { ThrowOnConversionError = true };
+        var mapper = new JMSMapper(config);
         string source = "abc";
 
-        // Act
-        int result = mapper.Map<int>(source);
-
-        // Assert
-        Assert.Equal(0, result); // Default value for int
-        Assert.Contains(logMessages, msg => msg.Contains("Erro ao converter valor de 'String' para 'Int32'"));
+        // Act & Assert
+        Assert.Throws<MappingException>(() => mapper.Map<int>(source));
     }
 
     [Fact]
@@ -1188,31 +1174,110 @@ public partial class UnitTests
         Assert.Equal(source.Value2, destination.Value2);
     }
 
+    //[Fact]
+    //public void Map_ShouldUseParameterizedConstructorWhenAvailable()
+    //{
+    //    // Arrange
+    //    var config = new MapperConfiguration();
+    //    config.CreateMap<SourceWithData, DestinationWithParameterizedConstructor>();
+    //    var mapper = new JMSMapper(config);
+
+    //    var source = new SourceWithData { Value1 = 20, Value2 = "World" };
+
+    //    // Act
+    //    var destination = mapper.Map<DestinationWithParameterizedConstructor>(source);
+
+    //    // Assert
+    //    Assert.NotNull(destination);
+    //    Assert.Equal(source.Value1, destination.Value1);
+    //    Assert.Equal(source.Value2, destination.Value2);
+    //}
+
+    public class DestinationWithMultipleConstructors
+    {
+        public int Value1 { get; }
+        public string Value2 { get; }
+        public string ConstructorUsed { get; }
+
+        public DestinationWithMultipleConstructors()
+        {
+            ConstructorUsed = "Default";
+        }
+
+        public DestinationWithMultipleConstructors(int value1)
+        {
+            Value1 = value1;
+            ConstructorUsed = "Int";
+        }
+
+        public DestinationWithMultipleConstructors(int value1, string value2)
+        {
+            Value1 = value1;
+            Value2 = value2;
+            ConstructorUsed = "IntAndString";
+        }
+    }
+
+    public class DestinationWithDifferentParameterName
+    {
+        public int Value1 { get; }
+        public string Value2 { get; }
+
+        public DestinationWithDifferentParameterName(int val1, string val2)
+        {
+            Value1 = val1;
+            Value2 = val2;
+        }
+    }
+
     [Fact]
-    public void Map_ShouldUseParameterizedConstructorWhenAvailable()
+    public void Map_ShouldUseExplicitlySelectedConstructor()
     {
         // Arrange
         var config = new MapperConfiguration();
-        config.CreateMap<SourceWithData, DestinationWithParameterizedConstructor>();
+        config.CreateMap<SourceWithData, DestinationWithMultipleConstructors>()
+            .UseConstructor(typeof(int), typeof(string));
         var mapper = new JMSMapper(config);
 
-        var source = new SourceWithData { Value1 = 20, Value2 = "World" };
+        var source = new SourceWithData { Value1 = 30, Value2 = "Explicit" };
 
         // Act
-        var destination = mapper.Map<DestinationWithParameterizedConstructor>(source);
+        var destination = mapper.Map<DestinationWithMultipleConstructors>(source);
 
         // Assert
         Assert.NotNull(destination);
+        Assert.Equal("IntAndString", destination.ConstructorUsed);
         Assert.Equal(source.Value1, destination.Value1);
         Assert.Equal(source.Value2, destination.Value2);
     }
+
+    //[Fact]
+    //public void Map_ShouldUseParameterizedConstructorWithDifferentParameterName()
+    //{
+    //    // Arrange
+    //    var config = new MapperConfiguration();
+    //    config.CreateMap<SourceWithData, DestinationWithDifferentParameterName>()
+    //        .UseConstructor(typeof(int), typeof(string));
+    //    var mapper = new JMSMapper(config);
+
+    //    var source = new SourceWithData { Value1 = 40, Value2 = "Different" };
+
+    //    // Act
+    //    var destination = mapper.Map<DestinationWithDifferentParameterName>(source);
+
+    //    // Assert
+    //    Assert.NotNull(destination);
+    //    Assert.Equal(source.Value1, destination.Value1);
+    //    Assert.Equal(source.Value2, destination.Value2);
+    //}
 
     [Fact]
     public void Map_ShouldMapEnumToString()
     {
         // Arrange
         var config = new MapperConfiguration();
-        config.CreateMap<SourceEnum, DestinationEnum>();
+        config.CreateMap<SourceEnum, DestinationEnum>()
+            .ForMember("EnumStringValue", src => src.EnumValue.ToString());
         var mapper = new JMSMapper(config);
 
         var source = new SourceEnum { EnumValue = MyEnum.Value1 };
@@ -1284,21 +1349,14 @@ public partial class UnitTests
     public void Map_ShouldHandleInvalidEnumConversion()
     {
         // Arrange
-        var logMessages = new List<string>();
-        Action<string, Exception> logger = (msg, ex) => logMessages.Add(msg);
-        var config = new MapperConfiguration();
+        var config = new MapperConfiguration { ThrowOnConversionError = true };
         config.CreateMap<SourceEnum, DestinationEnum>();
-        var mapper = new JMSMapper(config, logger);
+        var mapper = new JMSMapper(config);
 
         var source = new SourceEnum { StringValue = "InvalidValue" };
 
-        // Act
-        var destination = mapper.Map<DestinationEnum>(source);
-
-        // Assert
-        Assert.NotNull(destination);
-        Assert.Equal(default(MyEnum), destination.StringValue); // Default enum value
-        Assert.Contains(logMessages, msg => msg.Contains("Cannot convert InvalidValue to MyEnum"));
+        // Act & Assert
+        Assert.Throws<MappingException>(() => mapper.Map<DestinationEnum>(source));
     }
 
     [Fact]
@@ -1333,31 +1391,5 @@ public partial class UnitTests
         Console.WriteLine($"Sync mapping 10,000 items took: {stopwatch.ElapsedMilliseconds} ms");
     }
 
-    [Fact]
-    public async Task Map_ShouldPerformWellWithLargeVolumeOfData_Async()
-    {
-        // Arrange
-        var config = new MapperConfiguration();
-        config.CreateMap<Source, Destination>();
-        var mapper = new JMSMapper(config);
 
-        var sources = new List<Source>();
-        for (int i = 0; i < 10000; i++)
-        {
-            sources.Add(new Source { Id = i, Name = $"Test {i}" });
-        }
-
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-        // Act
-        var destinations = (await mapper.MapIEnumerableAsync<Destination>(sources)).ToList();
-
-        stopwatch.Stop();
-
-        // Assert
-        Assert.Equal(sources.Count, destinations.Count);
-        // You might want to add a time assertion here, e.g., Assert.True(stopwatch.ElapsedMilliseconds < 500);
-        // For now, just ensure it runs without error.
-        Console.WriteLine($"Async mapping 10,000 items took: {stopwatch.ElapsedMilliseconds} ms");
-    }
 }

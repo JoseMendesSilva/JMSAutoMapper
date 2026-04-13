@@ -3,12 +3,12 @@
   <metadata>
     <id>JMSAutoMapperDemo</id>
     <version>1.0.0</version>
-    <authors>JMSAutoMapperDemo</authors>
-    <description>Package Description</description>
-    <repository type="git" />
+    <authors>José Mendes da Silva</authors>
+    <description>Biblioteca para mapeamento de objeto-objeto para .NET</description>
+    <repository type="git" commit="6c09d6613f9149661902a8697c0137b3a72b22c2" />
     <dependencies>
       <group targetFramework="net8.0">
-        <dependency id="JMSAutoMapper" version="1.0.8" exclude="Build,Analyzers" />
+        <dependency id="JMSAutoMapper" version="1.0.13" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

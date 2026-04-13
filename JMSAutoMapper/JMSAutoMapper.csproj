@@ -4,12 +4,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <!--Isso indica que é uma biblioteca-->
     <OutputType>Library</OutputType>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- ou a versão do .NET que você está usando -->
     <PackageId>JMSAutoMapper</PackageId>
     <!-- Defina a versão do pacote -->
-    <Version>1.0.8</Version>
+    <Version>1.0.14</Version>
     <Authors>José Mendes da Silva</Authors>
     <!--José Mendes Software's-->
     <Company>JMS</Company>
@@ -23,27 +22,39 @@
     <Title>JMS Auto Mapper</Title>
     <Copyright>Created By JMS</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>JMS, JMSAutoMapper, JMS, Transferencia, Objeto, Relacional</PackageTags>
-    <PackageReleaseNotes>Esta é a versão piloto, alterada para incluir o mapeamento de colections</PackageReleaseNotes>
+    <PackageTags>JMS, JMSAutoMapper, Object-Object, Transferencia, AutoMapper, Relacional</PackageTags>
+
+
+    <PackageTags>automapper;mapper;object-mapper</PackageTags>
+
+    <!-- Gerar pacote de símbolos -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Documentação -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
-    <ApplicationIcon>Imagem\atualizar0.ico</ApplicationIcon>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
-    <PackageIcon></PackageIcon>
-    <AssemblyVersion>1.0.2.3</AssemblyVersion>
-    <FileVersion>1.0.2.3</FileVersion>
+    <!--<ApplicationIcon>logo.png</ApplicationIcon>-->
+    <PackageIcon>Imagem\atualizar1.png</PackageIcon>
+    <AssemblyVersion>1.0.2.6</AssemblyVersion>
+    <FileVersion>1.0.2.6</FileVersion>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <IncludeSymbols>True</IncludeSymbols>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>$(NoWarn);CS1701;CS1702;CS1591</NoWarn>
+    <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+    <!--<Features>strict</Features>-->
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
-    <PackageReference Include="System.Collections.Immutable" Version="9.0.4" />
-    <PackageReference Include="System.Runtime.Caching" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Imagem\JmsMapperIcon.png">
+    <None Update="Imagem\atualizar1.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

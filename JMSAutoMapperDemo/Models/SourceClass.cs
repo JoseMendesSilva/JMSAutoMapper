@@ -10,5 +10,5 @@ public class SourceClass
     public int Age { get; set; }
     public DateTime Data { get; set; }
     public eTeste EnumTeste { get; set; }
-    public List<ItensPedido> ItensPedido { get; set; } = new List<ItensPedido>();
+    public List<ItemPedido> ItensPedido { get; set; } = new List<ItemPedido>();
 }

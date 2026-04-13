@@ -5,16 +5,21 @@ JMSAutoMapper is a high-performance, flexible, and easy-to-use object-to-object 
 ## Key Features
 
 *   **High Performance:** Uses compiled expression trees to achieve fast and efficient mapping, avoiding the overhead of reflection-based approaches.
+*   **Asynchronous Support:** True asynchronous mapping support via `MapAsync`, `IAsyncValueResolver` and async conditionals.
 *   **Flexible Configuration:** Provides a fluent API for configuring custom mappings, including property name mapping, custom value resolvers, and conditional mapping.
 *   **Bidirectional Mapping:** Supports automatic reverse mapping, allowing you to map objects in both directions with a single configuration.
+*   **LINQ Projections:** Support for `IQueryable` projections (`ProjectTo`, `MapQueryable`) to generate efficient SQL queries with ORMs like Entity Framework.
+*   **Intelligent Caching:** Built-in support for distributed caching (`IDistributedMapperCache`) and static caching for optimized performance.
 *   **Circular Reference Handling:** Automatically handles circular references to prevent stack overflow exceptions.
-*   **Nested Collection Mapping:** Correctly maps nested collections of any depth.
+*   **Extensive Collection Support:** Maps Arrays, Lists, Dictionaries, and `System.Collections.Immutable` types correctly.
 *   **Value Type and Struct Support:** Can map value types (structs) and classes without parameterless constructors.
+*   **Constructor Injection:** Support for mapping to objects with parameterized constructors (`ConstructUsing`, `UseConstructor`).
+*   **Diagnostics:** Built-in performance metrics and diagnostics tools.
 *   **Dependency Injection Integration:** Provides an extension method for easy integration with `Microsoft.Extensions.DependencyInjection`.
 
 ## Technologies Used
 
-*   **.NET 8:** The project is built on the latest version of the .NET platform.
+*   **.NET 8+:** The project is built on the latest version of the .NET platform.
 *   **Expression Trees:** The core of the mapper is built using expression trees, which are compiled into highly efficient delegates for maximum performance.
 *   **System.Collections.Immutable:** Used for immutable collection support.
 *   **Microsoft.Extensions.DependencyInjection.Abstractions:** For seamless integration with dependency injection containers.
@@ -42,6 +47,18 @@ Install-Package JMSAutoMapper
     ```csharp
     var source = new Source { Name = "Test", Age = 30 };
     var destination = mapper.Map<Destination>(source);
+    ```
+
+3.  **Map Asynchronously:**
+
+    ```csharp
+    var destination = await mapper.MapAsync<Destination>(source, cancellationToken);
+    ```
+
+4.  **Project IQueryable (EF Core):**
+
+    ```csharp
+    var dtos = mapper.ProjectTo<UserDto>(dbContext.Users).ToList();
     ```
 
 ### Configuration
@@ -78,7 +95,7 @@ config.CreateMap<Source, Destination>()
 #### Custom Value Resolvers
 
 You can use a lambda expression to define a custom value resolver:
-
+ 
 ```csharp
 config.CreateMap<Source, Destination>()
     .ForMember("FullName", src => $"{src.FirstName} {src.LastName}");
@@ -109,9 +126,15 @@ JMSAutoMapper provides an extension method for easy integration with `Microsoft.
 1.  **Add the Mapper to the Service Collection:**
 
     ```csharp
-    services.AddJMSMapper(config =>
+    services.AddJMSMapper(cfg =>
     {
-        config.CreateMap<Source, Destination>();
+        cfg.AddProfile<MyProfile>();
+    }, options => {
+        // Optional configuration
+        options.EnableDiagnostics = true;
+        options.EnableDistributedCache = true;
+        options.ValidateOnBuild = true;
+        options.MaxDepth = 10;
     });
     ```
 
@@ -128,6 +151,47 @@ JMSAutoMapper provides an extension method for easy integration with `Microsoft.
         }
     }
     ```
+
+## Advanced Configuration
+
+### Naming Convention
+
+You can specify a naming convention for properties. For example, to map properties from `snake_case` to `PascalCase`.
+
+```csharp
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.SetNamingConvention(new SnakeCaseNamingConvention(), new PascalCaseNamingConvention());
+});
+```
+
+### Ignoring Properties
+
+You can ignore properties during mapping.
+
+```csharp
+config.CreateMap<Source, Destination>()
+    .Ignore("PropertyToIgnore");
+```
+
+### Using Profiles
+
+Profiles allow you to organize your mapping configurations.
+
+```csharp
+public class MyProfile : Profile
+{
+    public MyProfile()
+    {
+        CreateMap<Source, Destination>();
+    }
+}
+
+var config = new MapperConfiguration(cfg =>
+{
+    cfg.AddProfile<MyProfile>();
+});
+```
 
 ## Advanced Usage Scenarios
 
@@ -348,10 +412,11 @@ The `IMappingExpression` interface provides a fluent API for configuring individ
     *   `IMappingExpression<TSource, TDestination> ForMember<TSourceMember>(string destinationMemberName, Expression<Func<TSource, TSourceMember>> valueResolver)`: Configures a custom mapping for a specific member in the destination type using a custom value resolver (a lambda expression) to determine the value from the source object.
     *   `IMappingExpression<TSource, TDestination> ForMember<TSourceMember>(string destinationMemberName, string sourceMemberName, Expression<Func<TSource, bool>> condition)`: Configures a conditional mapping for a specific member. The mapping will only occur if the provided condition (a lambda expression) evaluates to `true`.
     *   `IMappingExpression<TSource, TDestination> ReverseMap()`: Configures a reverse mapping, allowing you to map from the destination type back to the source type with the same configuration.
+    *   `IMappingExpression<TSource, TDestination> Ignore(string destinationMemberName)`: Ignores a destination member during mapping.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue on GitHub.
+Contributions are welcome! Please see the [Guia de Contribuição](CONTRIBUTING.md) for more details.
 
 ## License
 
