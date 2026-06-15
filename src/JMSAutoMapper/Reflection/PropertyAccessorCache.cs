@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using JMSAutoMapper.Expressions;
 using System.Reflection;
 
 namespace JMSAutoMapper.Reflection
@@ -21,7 +22,9 @@ namespace JMSAutoMapper.Reflection
                         PropertyType = p.PropertyType,
                         PropertyInfo = p,
                         CanRead = p.CanRead,
-                        CanWrite = p.CanWrite
+                        CanWrite = p.CanWrite,
+                        Getter = p.CanRead ? ExpressionCompiler.CreateGetter(p) : null,
+                        Setter = p.CanWrite ? ExpressionCompiler.CreateSetter(p) : null
                     });
                 return new TypeMetadata(t, properties);
             });

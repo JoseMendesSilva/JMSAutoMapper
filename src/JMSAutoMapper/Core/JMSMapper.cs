@@ -2,6 +2,8 @@
 
 using JMSAutoMapper.Abstractions;
 using JMSAutoMapper.Configuration;
+using JMSAutoMapper.Cache;
+using JMSAutoMapper.Cache;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -246,7 +248,7 @@ namespace JMSAutoMapper.Core
             {
                 var key = ConvertValue(entry.Key, keyType);
                 var value = await mapDelegate(entry.Value!, mappedObjects, token).ConfigureAwait(false);
-                if (key != null && value != null) resultDict[key] = value;
+                if (key != null && value != null) resultDict[key] = value!;
             }
 
             return FinalizeCollection(resultDict, typeof(KeyValuePair<,>).MakeGenericType(keyType, valType), targetDictType);
@@ -423,7 +425,7 @@ namespace JMSAutoMapper.Core
 
                             // Determine if the source can be null
                             var sourceCanBeNull = sourceValueAccess != null && (!sourceValueAccess.Type.IsValueType || Nullable.GetUnderlyingType(sourceValueAccess.Type) != null);
-                            var sourceIsNull = (sourceCanBeNull && sourceValueAccess != null) ? Expression.Equal(sourceValueAccess, Expression.Constant(null, sourceValueAccess.Type)) : null;
+                            Expression? sourceIsNull = (sourceCanBeNull && sourceValueAccess != null) ? Expression.Equal(sourceValueAccess, Expression.Constant(null, sourceValueAccess.Type)) : null;
 
                             if (isNonNullableValueTypeDest)
                             {
@@ -432,7 +434,7 @@ namespace JMSAutoMapper.Core
                                     if (_config.NullValueMappingStrategy == NullValueMappingPolicy.Throw)
                                     {
                                         propertyMappingExpression = Expression.IfThenElse(
-                                            sourceIsNull!,
+                                            sourceIsNull ?? Expression.Constant(false),
                                             Expression.Throw(Expression.New(typeof(MappingException).GetConstructor(new[] { typeof(string) })!,
                                                 Expression.Constant($"Falha ao mapear '{targetProperty.Name}': Valor de origem é nulo para um tipo de valor não anulável '{targetProperty.PropertyType.Name}'. Para mudar este comportamento, altere NullValueMappingStrategy."))),
                                             assignment);
@@ -1161,7 +1163,7 @@ namespace JMSAutoMapper.Core
                         customMaps.TryGetValue(targetProperty.Name, out var lambda) && lambda != null)
                     {
                         var body = new ParameterReplacer(lambda.Parameters[0], (ParameterExpression)_sourceExpression)
-                            .Visit(lambda.Body);
+                            .Visit(lambda.Body!);
                         bindings.Add(Expression.Bind(targetProperty, body));
                         continue;
                     }
@@ -1181,12 +1183,12 @@ namespace JMSAutoMapper.Core
 
                     if (sourcePropertyAccess != null)
                     {
-                        if (sourcePropertyAccess != null && _mapper.IsComplexType(targetProperty.PropertyType) &&
+                        if (sourcePropertyAccess != null && _mapper!.IsComplexType(targetProperty.PropertyType) &&
                             sourcePropertyAccess.Type != targetProperty.PropertyType)
                         {
                             var nestedVisitor = new ProjectionExpressionVisitor(
                                 _config,
-                                sourcePropertyAccess!.Type,
+                                sourcePropertyAccess.Type,
                                 targetProperty.PropertyType,
                                 sourcePropertyAccess,
                                 _mapper,
@@ -1212,7 +1214,7 @@ namespace JMSAutoMapper.Core
                         {
                             try
                             {
-                                var converted = Expression.Convert(sourcePropertyAccess!, targetProperty.PropertyType);
+                                var converted = Expression.Convert(sourcePropertyAccess, targetProperty.PropertyType);
                                 bindings.Add(Expression.Bind(targetProperty, converted));
                             }
                             catch (InvalidOperationException) { }
