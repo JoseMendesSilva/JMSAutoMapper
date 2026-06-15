@@ -3,7 +3,6 @@
 using JMSAutoMapper.Abstractions;
 using JMSAutoMapper.Configuration;
 using JMSAutoMapper.Cache;
-using JMSAutoMapper.Cache;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -425,7 +424,7 @@ namespace JMSAutoMapper.Core
 
                             // Determine if the source can be null
                             var sourceCanBeNull = sourceValueAccess != null && (!sourceValueAccess.Type.IsValueType || Nullable.GetUnderlyingType(sourceValueAccess.Type) != null);
-                            Expression? sourceIsNull = (sourceCanBeNull && sourceValueAccess != null) ? Expression.Equal(sourceValueAccess, Expression.Constant(null, sourceValueAccess.Type)) : null;
+                            Expression? sourceIsNull = (sourceCanBeNull && sourceValueAccess != null) ? (Expression)Expression.Equal(sourceValueAccess, Expression.Constant(null, sourceValueAccess.Type)) : null;
 
                             if (isNonNullableValueTypeDest)
                             {
@@ -434,14 +433,14 @@ namespace JMSAutoMapper.Core
                                     if (_config.NullValueMappingStrategy == NullValueMappingPolicy.Throw)
                                     {
                                         propertyMappingExpression = Expression.IfThenElse(
-                                            sourceIsNull ?? Expression.Constant(false),
+                                            sourceIsNull ?? (Expression)Expression.Constant(false),
                                             Expression.Throw(Expression.New(typeof(MappingException).GetConstructor(new[] { typeof(string) })!,
                                                 Expression.Constant($"Falha ao mapear '{targetProperty.Name}': Valor de origem é nulo para um tipo de valor não anulável '{targetProperty.PropertyType.Name}'. Para mudar este comportamento, altere NullValueMappingStrategy."))),
                                             assignment);
                                     }
                                     else if (_config.NullValueMappingStrategy == NullValueMappingPolicy.Ignore)
                                     {
-                                        propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull!), assignment);
+                                        propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull ?? (Expression)Expression.Constant(false)), assignment);
                                     }
                                     else // Default
                                     {
@@ -457,7 +456,7 @@ namespace JMSAutoMapper.Core
                             {
                                 if (sourceCanBeNull)
                                 {
-                                    propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull!), assignment);
+                                    propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull ?? (Expression)Expression.Constant(false)), assignment);
                                 }
                                 else // Source cannot be null, just assign
                                 {
@@ -1164,7 +1163,7 @@ namespace JMSAutoMapper.Core
                     {
                         var body = new ParameterReplacer(lambda.Parameters[0], (ParameterExpression)_sourceExpression)
                             .Visit(lambda.Body!);
-                        bindings.Add(Expression.Bind(targetProperty, body));
+                        bindings.Add(Expression.Bind(targetProperty, body!));
                         continue;
                     }
 

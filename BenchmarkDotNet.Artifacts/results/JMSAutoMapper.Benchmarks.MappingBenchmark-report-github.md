@@ -8,11 +8,11 @@ Intel Core i5-8265U CPU 1.60GHz (Max: 1.80GHz) (Whiskey Lake), 1 CPU, 8 logical 
 
 
 ```
-| Method                   | Mean         | Error        | StdDev       | Median       | Gen0    | Allocated |
-|------------------------- |-------------:|-------------:|-------------:|-------------:|--------:|----------:|
-| JmsMapper_SimpleMap      |    325.55 ns |    11.171 ns |    32.587 ns |    317.68 ns |  0.1478 |     464 B |
-| AutoMapper_SimpleMap     |     76.91 ns |     2.679 ns |     7.857 ns |     73.71 ns |  0.0101 |      32 B |
-| JmsMapper_CollectionMap  | 35,010.98 ns | 1,147.113 ns | 3,382.289 ns | 34,549.30 ns | 15.1978 |   47767 B |
-| AutoMapper_CollectionMap |  1,679.98 ns |    58.306 ns |   171.917 ns |  1,693.63 ns |  1.7185 |    5392 B |
-| JmsMapper_ComplexMap     |    671.54 ns |    25.181 ns |    73.455 ns |    680.53 ns |  0.2594 |     816 B |
-| AutoMapper_ComplexMap    |     87.79 ns |     2.677 ns |     7.810 ns |     85.81 ns |  0.0204 |      64 B |
+| Method                   | Mean         | Error        | StdDev       | Gen0    | Allocated |
+|------------------------- |-------------:|-------------:|-------------:|--------:|----------:|
+| JmsMapper_SimpleMap      |    333.34 ns |     9.718 ns |    28.500 ns |  0.1478 |     464 B |
+| AutoMapper_SimpleMap     |     79.72 ns |     2.440 ns |     7.156 ns |  0.0101 |      32 B |
+| JmsMapper_CollectionMap  | 35,195.92 ns | 1,105.085 ns | 3,258.368 ns | 15.1978 |   47767 B |
+| AutoMapper_CollectionMap |  1,655.31 ns |    61.837 ns |   181.358 ns |  1.7185 |    5392 B |
+| JmsMapper_ComplexMap     |    707.02 ns |    21.407 ns |    61.075 ns |  0.2594 |     816 B |
+| AutoMapper_ComplexMap    |     91.50 ns |     3.704 ns |    10.627 ns |  0.0204 |      64 B |
