@@ -8,13 +8,13 @@ namespace JMSAutoMapper.Reflection
 {
     public static class PropertyAccessorCache
     {
-        private static readonly ConcurrentDictionary<Type, IReadOnlyList<PropertyMetadata>> _cache = new();
+        private static readonly ConcurrentDictionary<Type, TypeMetadata> _cache = new();
 
-        public static IReadOnlyList<PropertyMetadata> GetProperties(Type type)
+        public static TypeMetadata GetMetadata(Type type)
         {
             return _cache.GetOrAdd(type, t =>
             {
-                return t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                var properties = t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Select(p => new PropertyMetadata
                     {
                         Name = p.Name,
@@ -22,8 +22,13 @@ namespace JMSAutoMapper.Reflection
                         PropertyInfo = p,
                         CanRead = p.CanRead,
                         CanWrite = p.CanWrite
-                    }).ToList();
+                    });
+                return new TypeMetadata(t, properties);
             });
         }
+
+        // Mantido para compatibilidade temporária
+        public static IReadOnlyList<PropertyMetadata> GetProperties(Type type) 
+            => GetMetadata(type).PublicReadableProperties;
     }
 }

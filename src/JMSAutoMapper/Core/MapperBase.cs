@@ -27,21 +27,21 @@ namespace JMSAutoMapper.Core
     {
         /// <summary>Configuração do mapeador.</summary>
         protected readonly MapperConfiguration _config;
-        /// <summary>Logger para registro de erros e informações.</summary>
+        /// <summary>Logger para registro de erros.</summary>
         protected readonly Action<string, Exception>? _logger;
-        /// <summary>Pool de expressões compiladas.</summary>
+        /// <summary>Pool de expressões.</summary>
         protected readonly ExpressionPool _expressionPool;
-        /// <summary>Cache distribuído opcional.</summary>
+        /// <summary>Cache distribuído.</summary>
         protected readonly IDistributedMapperCache? _distributedCache;
-        /// <summary>Cache de propriedades de tipos.</summary>
-        protected readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
-        /// <summary>Cache de delegados de mapeamento compilados.</summary>
+        /// <summary>Cache de metadados de tipos.</summary>
+        protected readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
+        /// <summary>Cache de mapeadores compilados.</summary>
         protected readonly ConcurrentDictionary<(Type Source, Type Target), object> _compiledMappers = new();
-        /// <summary>Cache de delegados de mapeamento com destino compilados.</summary>
+        /// <summary>Cache de mapeadores com destino.</summary>
         protected readonly ConcurrentDictionary<(Type Source, Type Target), object> _compiledMappersWithDestination = new();
-        /// <summary>Cache de delegados de mapeamento assíncrono.</summary>
+        /// <summary>Cache de delegados assíncronos.</summary>
         protected readonly ConcurrentDictionary<Type, Func<object, ConcurrentDictionary<object, object>, CancellationToken, Task<object>>> _mapComplexTypeAsyncDelegates = new();
-        /// <summary>Cache de mapeadores assíncronos compilados.</summary>
+        /// <summary>Cache de mapeadores assíncronos.</summary>
         protected readonly ConcurrentDictionary<(Type Source, Type Target), object> _compiledAsyncMappers = new();
         /// <summary>Cache de delegados para tipos complexos.</summary>
         protected readonly ConcurrentDictionary<Type, Func<object, Dictionary<object, object>, object>> _mapComplexTypeDelegates = new();
@@ -406,7 +406,10 @@ namespace JMSAutoMapper.Core
         /// <summary>Obtém propriedades com cache.</summary>
         protected PropertyInfo[] GetProperties(Type type)
         {
-            return _propertyCache.GetOrAdd(type, t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance));
+            return _typeMetadataCache.GetOrAdd(type, t => PropertyAccessorCache.GetMetadata(t))
+                .PublicReadableProperties
+                .Select(p => p.PropertyInfo)
+                .ToArray();
         }
 
         /// <summary>Verifica se é tipo simples (primitivo, string, etc).</summary>

@@ -246,7 +246,7 @@ namespace JMSAutoMapper.Core
             {
                 var key = ConvertValue(entry.Key, keyType);
                 var value = await mapDelegate(entry.Value!, mappedObjects, token).ConfigureAwait(false);
-                if (key != null && value != null) resultDict[key] = value!;
+                if (key != null && value != null) resultDict[key] = value;
             }
 
             return FinalizeCollection(resultDict, typeof(KeyValuePair<,>).MakeGenericType(keyType, valType), targetDictType);
@@ -423,7 +423,7 @@ namespace JMSAutoMapper.Core
 
                             // Determine if the source can be null
                             var sourceCanBeNull = sourceValueAccess != null && (!sourceValueAccess.Type.IsValueType || Nullable.GetUnderlyingType(sourceValueAccess.Type) != null);
-                            var sourceIsNull = (sourceCanBeNull && sourceValueAccess != null) ? Expression.Equal(sourceValueAccess, Expression.Constant(null, sourceValueAccess!.Type)) : null;
+                            var sourceIsNull = (sourceCanBeNull && sourceValueAccess != null) ? Expression.Equal(sourceValueAccess, Expression.Constant(null, sourceValueAccess.Type)) : null;
 
                             if (isNonNullableValueTypeDest)
                             {
@@ -1181,7 +1181,7 @@ namespace JMSAutoMapper.Core
 
                     if (sourcePropertyAccess != null)
                     {
-                        if (sourcePropertyAccess != null && _mapper!.IsComplexType(targetProperty.PropertyType) &&
+                        if (sourcePropertyAccess != null && _mapper.IsComplexType(targetProperty.PropertyType) &&
                             sourcePropertyAccess.Type != targetProperty.PropertyType)
                         {
                             var nestedVisitor = new ProjectionExpressionVisitor(
