@@ -1123,6 +1123,42 @@ namespace JMSAutoMapper
                     currentCustomMaps.TryAdd(mapping.Key, mapping.Value);
             }
 
+            if (_config.CustomMappingExpressions.TryGetValue(baseKey, out var baseExprs))
+            {
+                var currentExprs = _config.CustomMappingExpressions.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, LambdaExpression>());
+                foreach (var mapping in baseExprs.Where(m => !currentExprs.ContainsKey(m.Key)))
+                    currentExprs.TryAdd(mapping.Key, mapping.Value);
+            }
+
+            if (_config.ConditionalMappings.TryGetValue(baseKey, out var baseConditions))
+            {
+                var currentConditions = _config.ConditionalMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, bool>>());
+                foreach (var mapping in baseConditions.Where(m => !currentConditions.ContainsKey(m.Key)))
+                    currentConditions.TryAdd(mapping.Key, mapping.Value);
+            }
+
+            if (_config.AsyncCustomMappings.TryGetValue(baseKey, out var baseAsyncMaps))
+            {
+                var currentAsyncMaps = _config.AsyncCustomMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, CancellationToken, Task<object>>>());
+                foreach (var mapping in baseAsyncMaps.Where(m => !currentAsyncMaps.ContainsKey(m.Key)))
+                    currentAsyncMaps.TryAdd(mapping.Key, mapping.Value);
+            }
+
+            if (_config.AsyncConditionalMappings.TryGetValue(baseKey, out var baseAsyncConditions))
+            {
+                var currentAsyncConditions = _config.AsyncConditionalMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, CancellationToken, Task<bool>>>());
+                foreach (var mapping in baseAsyncConditions.Where(m => !currentAsyncConditions.ContainsKey(m.Key)))
+                    currentAsyncConditions.TryAdd(mapping.Key, mapping.Value);
+            }
+
+            // Herdando propriedades ignoradas
+            var baseIgnored = _config.IgnoredProperties.Keys
+                .Where(ip => ip.Source == typeof(TSourceBase) && ip.Target == typeof(TDestinationBase));
+            foreach (var ignored in baseIgnored)
+            {
+                _config.IgnoredProperties.TryAdd((typeof(TSource), typeof(TDestination), ignored.PropertyName), 0);
+            }
+
             return this;
         }
 

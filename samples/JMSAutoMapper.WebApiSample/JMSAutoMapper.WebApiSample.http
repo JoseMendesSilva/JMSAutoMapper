@@ -1,0 +1,6 @@
+@JMSAutoMapper.WebApiSample_HostAddress = http://localhost:5271
+
+GET {{JMSAutoMapper.WebApiSample_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

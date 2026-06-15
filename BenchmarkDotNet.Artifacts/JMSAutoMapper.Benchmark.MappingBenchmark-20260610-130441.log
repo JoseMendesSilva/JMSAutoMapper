@@ -1,0 +1,75 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 6 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1/" /p:OutDir="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\bin\Release\net9.0/" /p:OutputPath="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\bin\Release\net9.0/" /p:PublishDir="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\publish/" in D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1
+// command took 3.66 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1/" /p:OutDir="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\bin\Release\net9.0/" /p:OutputPath="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\bin\Release\net9.0/" /p:PublishDir="D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\publish/" --output "D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\bin\Release\net9.0/" in D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1
+// command took 8.22 sec and exited with 1
+// ***** Done, took 00:00:12 (12.97 sec)   *****
+// Found 6 benchmarks:
+//   MappingBenchmark.JmsMapper_SimpleMap: DefaultJob
+//   MappingBenchmark.AutoMapper_SimpleMap: DefaultJob
+//   MappingBenchmark.JmsMapper_CollectionMap: DefaultJob
+//   MappingBenchmark.AutoMapper_CollectionMap: DefaultJob
+//   MappingBenchmark.JmsMapper_ComplexMap: DefaultJob
+//   MappingBenchmark.AutoMapper_ComplexMap: DefaultJob
+
+Setup power plan (GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c FriendlyName: Alto desempenho)
+// Build Error: Standard output: 
+  
+ Standard error: 
+ D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\obj\JMSAutoMapper\release\JMSAutoMapper.AssemblyInfo.cs(23,55): error CS8357: A cadeia de caracteres de versão especificada '1.0.17.*' contém curingas, que não são compatíveis com o determinismo. Remova os curingas da cadeia de caracteres da versão ou desative o determinismo para esta compilação [D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper\JMSAutoMapper.csproj]
+FALHA da compilação.
+D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1\obj\JMSAutoMapper\release\JMSAutoMapper.AssemblyInfo.cs(23,55): error CS8357: A cadeia de caracteres de versão especificada '1.0.17.*' contém curingas, que não são compatíveis com o determinismo. Remova os curingas da cadeia de caracteres da versão ou desative o determinismo para esta compilação [D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper\JMSAutoMapper.csproj]
+    0 Aviso(s)
+    1 Erro(s)
+Tempo Decorrido 00:00:07.47
+
+// BenchmarkDotNet has failed to build the auto-generated boilerplate code.
+// It can be found in D:\Projetos\10-04-2025\Prj03\Auto Mapper\JMSAutoMapper.Benchmark\bin\Release\net9.0\JMSAutoMapper.Benchmark-DefaultJob-1
+// Please follow the troubleshooting guide: https://benchmarkdotnet.org/articles/guides/troubleshooting.html
+
+// ** Remained 0 (0,0%) benchmark(s) to run. Estimated finish 2026-06-10 13:04 (0h 0m from now) **
+Successfully reverted power plan (GUID: 381b4222-f694-41f0-9685-ff5bb260df2e FriendlyName: Equilibrado)
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts\results\JMSAutoMapper.Benchmark.MappingBenchmark-report.csv
+  BenchmarkDotNet.Artifacts\results\JMSAutoMapper.Benchmark.MappingBenchmark-report-github.md
+  BenchmarkDotNet.Artifacts\results\JMSAutoMapper.Benchmark.MappingBenchmark-report.html
+
+// * Detailed results *
+MappingBenchmark.JmsMapper_SimpleMap: DefaultJob
+Runtime = ; GC = 
+There are not any results runs
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.8655/25H2/2025Update/HudsonValley2)
+Intel Core i5-8265U CPU 1.60GHz (Max: 1.80GHz) (Whiskey Lake), 1 CPU, 8 logical and 4 physical cores
+.NET SDK 9.0.315
+  [Host] : .NET 9.0.17 (9.0.17, 9.0.1726.26416), X64 RyuJIT x86-64-v3
+
+
+| Method              | Mean | Error |
+|-------------------- |-----:|------:|
+| JmsMapper_SimpleMap |   NA |    NA |
+
+Benchmarks with issues:
+  MappingBenchmark.JmsMapper_SimpleMap: DefaultJob
+
+// * Legends *
+  Mean  : Arithmetic mean of all measurements
+  Error : Half of 99.9% confidence interval
+  1 ns  : 1 Nanosecond (0.000000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:02 (2.01 sec), executed benchmarks: 0
+
+Global total time: 00:00:21 (21.6 sec), executed benchmarks: 0
+// * Artifacts cleanup *
+Artifacts cleanup is finished

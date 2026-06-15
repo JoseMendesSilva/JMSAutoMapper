@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>JMSAutoMapper.Benchmarks.MappingBenchmark-20260614-192158</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.8655/25H2/2025Update/HudsonValley2)
+Intel Core i5-8265U CPU 1.60GHz (Max: 1.80GHz) (Whiskey Lake), 1 CPU, 8 logical and 4 physical cores
+.NET SDK 9.0.315
+  [Host]     : .NET 9.0.17 (9.0.17, 9.0.1726.26416), X64 RyuJIT x86-64-v3
+  DefaultJob : .NET 9.0.17 (9.0.17, 9.0.1726.26416), X64 RyuJIT x86-64-v3
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method            </th><th>Mean  </th><th>Error </th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>JmsMapper_SimpleMap</td><td>325.55 ns</td><td>11.171 ns</td><td>32.587 ns</td><td>317.68 ns</td><td>0.1478</td><td>464 B</td>
+</tr><tr><td>AutoMapper_SimpleMap</td><td>76.91 ns</td><td>2.679 ns</td><td>7.857 ns</td><td>73.71 ns</td><td>0.0101</td><td>32 B</td>
+</tr><tr><td>JmsMapper_CollectionMap</td><td>35,010.98 ns</td><td>1,147.113 ns</td><td>3,382.289 ns</td><td>34,549.30 ns</td><td>15.1978</td><td>47767 B</td>
+</tr><tr><td>AutoMapper_CollectionMap</td><td>1,679.98 ns</td><td>58.306 ns</td><td>171.917 ns</td><td>1,693.63 ns</td><td>1.7185</td><td>5392 B</td>
+</tr><tr><td>JmsMapper_ComplexMap</td><td>671.54 ns</td><td>25.181 ns</td><td>73.455 ns</td><td>680.53 ns</td><td>0.2594</td><td>816 B</td>
+</tr><tr><td>AutoMapper_ComplexMap</td><td>87.79 ns</td><td>2.677 ns</td><td>7.810 ns</td><td>85.81 ns</td><td>0.0204</td><td>64 B</td>
+</tr></tbody></table>
+</body>
+</html>

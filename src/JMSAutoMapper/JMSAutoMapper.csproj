@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+      <Deterministic>false</Deterministic>
+      <!--Isso indica que é uma biblioteca-->
+      <OutputType>Library</OutputType>
+      <Nullable>enable</Nullable>
+      <!-- ou a versão do .NET que você está usando -->
+      <PackageId>JMSAutoMapper</PackageId>
+      <Authors>José Mendes da Silva</Authors>
+      <!--José Mendes Software's-->
+      <Company>JMS</Company>
+      <Description>Framework para a transferência de Dados entre objetos. Inclusive, entre objetos relacionais. Este pacote é um pacote Demo, em sua versão atual, e pode se usado livremente, desde de que respeito os direitos autorais.</Description>
+      <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+      <!-- Opcional: gera o pacote ao compilar -->
+      <PackageOutputPath>D:\nupkgs</PackageOutputPath>
+      <!-- Define a pasta de destino customizada para os pacotes NuGet -->
+      <Title>JMS Auto Mapper</Title>
+      <Copyright>Created By JMS</Copyright>
+      <PackageTags>JMS, JMSAutoMapper, Object-Object, Transferencia, AutoMapper, Relacional</PackageTags>
+
+
+      <PackageTags>automapper;mapper;object-mapper</PackageTags>
+
+      <!-- Gerar pacote de símbolos -->
+      <IncludeSymbols>true</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+      <!-- Documentação -->
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+      <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
+      <EnableNETAnalyzers>False</EnableNETAnalyzers>
+
+      <VersionPrefix>0.1.0.0</VersionPrefix>
+      <Version>0.1.0-alpha.1</Version>
+
+      <AssemblyVersion>0.1.0.0</AssemblyVersion>
+      <FileVersion>0.1.0.0</FileVersion>
+
+      <InformationalVersion>0.1.0-alpha.1</InformationalVersion>
+
+      <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+      <IncludeSymbols>True</IncludeSymbols>
+      <LangVersion>latest</LangVersion>
+      <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    </ItemGroup>
+
+  </Project>

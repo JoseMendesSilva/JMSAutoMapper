@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "Novo Perfil",
+    "Projects": [
+      {
+        "Path": "samples\\JMSAutoMapper.ConsoleSample\\JMSAutoMapper.ConsoleSample.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
