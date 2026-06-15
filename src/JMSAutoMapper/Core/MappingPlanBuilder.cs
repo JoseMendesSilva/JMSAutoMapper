@@ -28,7 +28,21 @@ namespace JMSAutoMapper.Core
 
                 var key = (sourceType, targetType);
                 
-                // Aplica mapeamento customizado ou convenção
+                // 1. Mapeamento Customizado (Resolvers)
+                if (_config.CustomMappings.TryGetValue(key, out var customMaps) &&
+                    customMaps.TryGetValue(targetProp.Name, out var mappingFunc))
+                {
+                    propertyMaps.Add(new PropertyMap
+                    {
+                        DestinationName = targetProp.Name,
+                        DestinationType = targetProp.PropertyType,
+                        CustomResolver = (src, m) => mappingFunc(src, m),
+                        Setter = targetProp.Setter
+                    });
+                    continue;
+                }
+
+                // 2. Mapeamento por Nome ou Convenção
                 string sourcePropName = _config.PropertyMappings.TryGetValue(key, out var propMaps) && 
                                         propMaps.TryGetValue(targetProp.Name, out var mappedName) 
                                         ? mappedName : _config.NamingConvention(targetProp.Name);

@@ -3,6 +3,7 @@
 using JMSAutoMapper.Abstractions;
 using JMSAutoMapper.Configuration;
 using JMSAutoMapper.Cache;
+using JMSAutoMapper.Projection;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -101,27 +102,23 @@ namespace JMSAutoMapper.Core
             var sourceType = source.GetType();
             var targetType = typeof(T);
 
-            // Interceptação de Dicionários
-            if (IsDictionary(targetType))
+            // 1. Tratamento de Coleções via Engine Dedicada (Sprint 6)
+            if (IsCollection(targetType))
             {
-                var resultDict = MapDictionaryHelper(source as IDictionary, targetType, mappedObjects);
-                if (resultDict != null) mappedObjects[source] = resultDict;
-                return (T)resultDict!;
-            }
-
-            // Interceptação de coleções lineares
-            if (IsLinearCollection(targetType))
-            {
-                var resultCollection = MapCollectionHelper(source as IEnumerable, targetType, mappedObjects);
-                if (resultCollection != null) mappedObjects[source] = resultCollection;
-                return (T)resultCollection!;
+                var resultColl = MapComplexType(targetType, source, mappedObjects);
+                if (resultColl != null) mappedObjects[source] = resultColl;
+                return (T)resultColl!;
             }
 
             var key = (sourceType, targetType);
-
-            var mapper = GetOrCreateMapper(key, () => BuildMapperDelegate(sourceType, targetType));
-
-            var result = ((Func<object, Dictionary<object, object>, object>)mapper)(source, mappedObjects);
+            
+            // 2. Uso de Planos de Mapeamento Compilados (Sprint 5)
+            var plan = MapperPlanCache.GetOrAdd(key, k => new MappingPlanBuilder(_config).Build(k.Source, k.Target));
+            var compiled = new CompiledMappingPlan(plan);
+            
+            var result = compiled.Map(source, this);
+            mappedObjects[source] = result;
+            
             return (T)result;
         }
 
@@ -135,7 +132,7 @@ namespace JMSAutoMapper.Core
                 return default!;
             }
 
-            if (mappedObjects.TryGetValue(source, out var existing) && existing is T cached)
+            if (source != null && mappedObjects.TryGetValue(source, out var existing) && existing is T cached)
                 return cached;
 
             var sourceType = source.GetType();
@@ -228,7 +225,7 @@ namespace JMSAutoMapper.Core
             {
                 var key = ConvertValue(entry.Key, keyType);
                 var value = MapComplexType(valType, entry.Value!, mappedObjects);
-                if (key != null && value != null) resultDict[key] = value;
+                if (key != null && value != null) resultDict[key!] = value!;
             }
 
             return FinalizeCollection(resultDict, typeof(KeyValuePair<,>).MakeGenericType(keyType, valType), targetDictType);
@@ -792,7 +789,7 @@ namespace JMSAutoMapper.Core
                             }
                             else if (_config.NullValueMappingStrategy == NullValueMappingPolicy.Ignore)
                             {
-                                propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull), assignment);
+                                        propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull ?? (Expression)Expression.Constant(false)), assignment);
                             }
                             else // Default
                             {
@@ -1091,16 +1088,16 @@ namespace JMSAutoMapper.Core
             return FinalizeCollection(mappedList, itemType, targetCollectionType);
         }
 
-        private bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
-        private bool IsDictionary(Type type) => typeof(IDictionary).IsAssignableFrom(type);
-        private bool IsLinearCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) && !IsDictionary(type);
+        internal bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
+        internal bool IsDictionary(Type type) => typeof(IDictionary).IsAssignableFrom(type);
+        internal bool IsLinearCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) && !IsDictionary(type);
 
-        private bool IsComplexType(Type type)
+        internal bool IsComplexType(Type type)
         {
             return !(type == typeof(string) || IsSimpleType(type) || IsCollection(type));
         }
 
-        private string GetMappedPropertyName(Type sourceType, Type targetType, string targetPropertyName,
+        internal string GetMappedPropertyName(Type sourceType, Type targetType, string targetPropertyName,
             ConcurrentDictionary<(Type, Type), ConcurrentDictionary<string, string>> propertyMappings)
         {
             // Busca recursiva na hierarquia de tipos para suportar herança de mapeamento

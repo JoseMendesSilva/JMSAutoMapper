@@ -1,6 +1,8 @@
 // dotnet pack --configuration Release --output D:\nupkgs -p:JMSAutoMapper=1.0.17 -p:Authors="José Mendes da Silva" -p:Description="Biblioteca para mapeamento de objeto-objeto"
 
-namespace JMSAutoMapper.Configuration
+using JMSAutoMapper.Configuration;
+
+namespace JMSAutoMapper.Core
 {
     ///// <summary>Valida a configuração.</summary>
     //public static void AssertConfigurationIsValid(this MapperConfiguration config)

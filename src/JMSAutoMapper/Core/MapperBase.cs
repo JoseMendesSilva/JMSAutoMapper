@@ -9,6 +9,7 @@ using JMSAutoMapper.Diagnostics;
 using JMSAutoMapper.Expressions;
 using JMSAutoMapper.Reflection;
 using JMSAutoMapper.Validation;
+using JMSAutoMapper.Cache;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -192,8 +193,13 @@ namespace JMSAutoMapper.Core
                 if (targetType.IsAssignableFrom(sourceType) || IsSimpleType(targetType))
                     return (T)ConvertValue(source, targetType)!;
 
-                var mappedObjects = new Dictionary<object, object>(ReferenceEqualityComparer.Instance);
-                return MapObject<T>(source, mappedObjects);
+                var mappedObjects = ObjectPoolProvider.GetDictionary();
+                try {
+                    return MapObject<T>(source, mappedObjects);
+                }
+                finally {
+                    ObjectPoolProvider.ReturnDictionary(mappedObjects);
+                }
             }
             finally
             {
@@ -272,9 +278,14 @@ namespace JMSAutoMapper.Core
                     return result;
                 }
 
-                // Sem cache, fazer mapeamento normal
                 _diagnostics.RecordCacheMiss();
-                return await PerformMappingAsync<T>(source, targetType, sourceType, cancellationToken).ConfigureAwait(false);
+                var mappedObjects = ObjectPoolProvider.GetDictionary();
+                try {
+                    return await MapObjectAsync<T>(source, new ConcurrentDictionary<object, object>(mappedObjects, ReferenceEqualityComparer.Instance), cancellationToken).ConfigureAwait(false);
+                }
+                finally {
+                    ObjectPoolProvider.ReturnDictionary(mappedObjects);
+                }
             }
             finally
             {
@@ -430,7 +441,7 @@ namespace JMSAutoMapper.Core
         /// Tenta encontrar um membro na origem seguindo a convenção de achatamento (Flattening).
         /// Ex: Destination.CustomerName -> Source.Customer.Name
         /// </summary>
-        protected Expression? GetFlattenedSourceMember(Expression sourceExpr, string targetPropertyName)
+        internal Expression? GetFlattenedSourceMember(Expression sourceExpr, string targetPropertyName)
         {
             var sourceType = sourceExpr.Type;
             var properties = GetProperties(sourceType);

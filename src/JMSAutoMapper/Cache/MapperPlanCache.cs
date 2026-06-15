@@ -8,7 +8,7 @@ namespace JMSAutoMapper.Cache
     {
         private static readonly ConcurrentDictionary<(Type Source, Type Target), MappingPlan> _cache = new();
 
-        public static MappingPlan GetOrAdd((Type Source, Type Target) key, Func<(Type, Type), MappingPlan> factory)
+        public static MappingPlan GetOrAdd((Type Source, Type Target) key, Func<(Type Source, Type Target), MappingPlan> factory)
         {
             return _cache.GetOrAdd(key, factory);
         }
