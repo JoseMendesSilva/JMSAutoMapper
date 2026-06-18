@@ -1,7 +1,7 @@
-// dotnet pack --configuration Release --output D:\nupkgs -p:JMSAutoMapper=1.0.17 -p:Authors="José Mendes da Silva" -p:Description="Biblioteca para mapeamento de objeto-objeto"
-
-using JMSAutoMapper.Abstractions;
+using System;
 using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace JMSAutoMapper.Cache
 {
@@ -51,6 +51,4 @@ namespace JMSAutoMapper.Cache
             return Task.CompletedTask;
         }
     }
-
-    
 }

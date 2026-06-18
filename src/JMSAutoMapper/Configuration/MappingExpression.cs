@@ -1,8 +1,11 @@
 // dotnet pack --configuration Release --output D:\nupkgs -p:JMSAutoMapper=1.0.17 -p:Authors="José Mendes da Silva" -p:Description="Biblioteca para mapeamento de objeto-objeto"
 
-using JMSAutoMapper.Abstractions;
+using System;
+using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
+using System.Linq;
+using JMSAutoMapper;
 
 namespace JMSAutoMapper.Configuration
 {
@@ -28,9 +31,9 @@ namespace JMSAutoMapper.Configuration
             var expressions = _config.CustomMappingExpressions.GetOrAdd(key, _ => new ConcurrentDictionary<string, LambdaExpression>());
             expressions[destinationProperty] = mappingExpression;
 
-            var mappings = _config.CustomMappings.GetOrAdd(key, _ => new ConcurrentDictionary<string, Func<object, IMapper, object>>());
-            var compiled = mappingExpression.Compile(); // CS8604: TSource is expected to be non-null here by design
-            mappings[destinationProperty] = (src, _) => compiled((TSource)src)!;
+            var mappings = _config.CustomMappings.GetOrAdd(key, _ => new ConcurrentDictionary<string, Func<object, object>>());
+            var compiled = mappingExpression.Compile();
+            mappings[destinationProperty] = src => compiled((TSource)src)!;
 
             if (condition != null)
             {
@@ -169,14 +172,14 @@ namespace JMSAutoMapper.Configuration
             // 2. Mapeamentos customizados (Síncronos e Assíncronos)
             if (_config.CustomMappings.TryGetValue(baseKey, out var baseCustomMaps))
             {
-                var currentCustomMaps = _config.CustomMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, IMapper, object>>());
+                var currentCustomMaps = _config.CustomMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, object>>());
                 foreach (var mapping in baseCustomMaps.Where(m => !currentCustomMaps.ContainsKey(m.Key)))
                     currentCustomMaps.TryAdd(mapping.Key, mapping.Value);
             }
 
             if (_config.AsyncCustomMappings.TryGetValue(baseKey, out var baseAsyncCustomMaps))
             {
-                var currentAsyncCustomMaps = _config.AsyncCustomMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, IMapper, CancellationToken, Task<object>>>());
+                var currentAsyncCustomMaps = _config.AsyncCustomMappings.GetOrAdd(currentKey, _ => new ConcurrentDictionary<string, Func<object, CancellationToken, Task<object>>>());
                 foreach (var mapping in baseAsyncCustomMaps.Where(m => !currentAsyncCustomMaps.ContainsKey(m.Key)))
                     currentAsyncCustomMaps.TryAdd(mapping.Key, mapping.Value);
             }
@@ -263,18 +266,25 @@ namespace JMSAutoMapper.Configuration
             return this;
         }
 
-        /// <inheritdoc/>
-        public IMappingExpression<TSource, TDestination> ValidateMemberList(MemberListType memberList = MemberListType.Destination)
-        {
-            _config.ValidateMemberList = memberList;
-            return this;
-        }
+        ///// <inheritdoc/>
+        //public IMappingExpression<TSource, TDestination> ValidateMemberList(MemberListType memberList)
+        //{
+        //    _config.ValidateMemberList = memberList;
+        //    return this;
+        //}
 
         /// <inheritdoc/>
         public IMappingExpression<TSource, TDestination> MaxDepth(int depth)
         {
             _maxDepth = depth;
             if (_config.MaxDepth > depth) _config.MaxDepth = depth;
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IMappingExpression<TSource, TDestination> ValidateMemberList(MemberListType memberList)
+        {
+            _config.ValidateMemberList = memberList;
             return this;
         }
     }

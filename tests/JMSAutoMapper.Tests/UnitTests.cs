@@ -1001,6 +1001,23 @@ public partial class UnitTests
         Assert.IsType<JMSMapper>(mapper);
     }
 
+    [Fact(DisplayName = "Dependency Injection - Register IMapper with recommended API")]
+    [Trait("Category", "Integration")]
+    public void AddJMSAutoMapper_ShouldAddMapperToDIMain()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddJMSAutoMapper();
+        var serviceProvider = services.BuildServiceProvider();
+        var mapper = serviceProvider.GetService<IMapper>();
+
+        // Assert
+        Assert.NotNull(mapper);
+        Assert.IsType<JMSMapper>(mapper);
+    }
+
     [Fact(DisplayName = "Dependency Injection - Register with Configuration")]
     [Trait("Category", "Integration")]
     public void AddJMSMapper_ShouldAddMapperToDIWithBasicConfiguration()

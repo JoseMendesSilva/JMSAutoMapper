@@ -9,7 +9,7 @@ public class ClienteComplexoDTO
     public string EnderecoCompleto { get; set; }
     public string CidadeSede { get; set; }
     // Deep Mapping
-    public List<ContratoDTO> ResumoContratos { get; set; }
+    public List<ContratoDTO> ResumoContratos { get; set; } = new();
     // Custom Logic
     public string ScoreFinanceiro { get; set; }
     public decimal ValorTotalContratos { get; set; }

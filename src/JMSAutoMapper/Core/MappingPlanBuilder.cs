@@ -1,6 +1,7 @@
 using JMSAutoMapper.Configuration;
 using JMSAutoMapper.Reflection;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -36,7 +37,8 @@ namespace JMSAutoMapper.Core
                     {
                         DestinationName = targetProp.Name,
                         DestinationType = targetProp.PropertyType,
-                        CustomResolver = (src, m) => mappingFunc(src, m),
+                        Kind = PropertyMapKind.Custom,
+                        CustomResolver = (src, m) => mappingFunc(src),
                         Setter = targetProp.Setter
                     });
                     continue;
@@ -49,7 +51,10 @@ namespace JMSAutoMapper.Core
 
                 if (sourceMetadata.PropertiesByName.TryGetValue(sourcePropName, out var sourceProp))
                 {
-                    propertyMaps.Add(new PropertyMap
+                    var kind = IsComplexType(targetProp.PropertyType) ? PropertyMapKind.Nested : 
+                               (typeof(IEnumerable).IsAssignableFrom(targetProp.PropertyType) && targetProp.PropertyType != typeof(string) ? PropertyMapKind.Collection : PropertyMapKind.Simple);
+
+                    var propMap = new PropertyMap
                     {
                         SourceName = sourceProp.Name,
                         DestinationName = targetProp.Name,
@@ -57,15 +62,38 @@ namespace JMSAutoMapper.Core
                         DestinationType = targetProp.PropertyType,
                         Getter = sourceProp.Getter,
                         Setter = targetProp.Setter,
+                        Kind = kind,
                         Condition = _config.ConditionalMappings.TryGetValue(key, out var conds) && 
                                     conds.TryGetValue(targetProp.Name, out var cond) ? cond : null
-                    });
+                    };
+
+                    if (kind == PropertyMapKind.Nested)
+                    {
+                        propMap.NestedMapper = (src, mapper, cache) => 
+                        {
+                            return mapper.Map(src, src.GetType(), propMap.DestinationType);
+                        };
+                    }
+
+                    propertyMaps.Add(propMap);
                 }
             }
 
             return new MappingPlan(sourceType, targetType, propertyMaps.ToArray(), 
                 () => Activator.CreateInstance(targetType)!, 
                 false, false, false, false);
+        }
+
+        private bool IsComplexType(Type type)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+            return !(underlyingType.IsPrimitive || 
+                     underlyingType.IsEnum || 
+                     underlyingType == typeof(string) || 
+                     underlyingType == typeof(decimal) || 
+                     underlyingType == typeof(DateTime) || 
+                     underlyingType == typeof(Guid) ||
+                     typeof(IEnumerable).IsAssignableFrom(type));
         }
     }
 }

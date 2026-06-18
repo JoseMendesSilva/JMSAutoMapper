@@ -1,36 +1,21 @@
-// dotnet pack --configuration Release --output D:\nupkgs -p:JMSAutoMapper=1.0.17 -p:Authors="José Mendes da Silva" -p:Description="Biblioteca para mapeamento de objeto-objeto"
-
-using JMSAutoMapper.Abstractions;
-using JMSAutoMapper.Core;
-using JMSAutoMapper.Validation;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using JMSAutoMapper.Configuration;
+using JMSAutoMapper.Internals;
+using JMSAutoMapper.Validation;
 
 namespace JMSAutoMapper.Configuration
 {
-    /// <summary>
-    /// Classe principal de configuração do mapper.
-    /// Armazena todos os mapeamentos e opções de configuração.
-    /// </summary>
-    /// <remarks>
-    /// Exemplo de configuração:
-    /// <code>
-    /// var config = new MapperConfiguration();
-    /// config.CreateMap&lt;Usuario, UsuarioDto&gt;()
-    ///     .ForMember(dto => dto.NomeCompleto, opt => opt.MapFrom(src => src.Nome + " " + src.Sobrenome))
-    ///     .ForMember(dto => dto.Idade, "IdadeUsuario")
-    ///     .ReverseMap();
-    ///     
-    /// config.AddProfile&lt;MeuPerfil&gt;();
-    /// config.AddProfilesFromAssembly(typeof(Program).Assembly);
-    /// </code>
-    /// </remarks>
-    public class MapperConfiguration
+    public partial class MapperConfiguration
     {
-        // Dicionários de configuração - usando ConcurrentDictionary para thread safety
-        internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, Func<object, IMapper, object>>> CustomMappings { get; } = new();
-        internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, Func<object, IMapper, CancellationToken, Task<object>>>> AsyncCustomMappings { get; } = new();
+        // Dicionários de configuração utilizando as extensões modulares
+        internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, Func<object, object>>> CustomMappings { get; } = new();
+        internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, Func<object, CancellationToken, Task<object>>>> AsyncCustomMappings { get; } = new();
         internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, LambdaExpression>> CustomMappingExpressions { get; } = new();
         internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, string>> PropertyMappings { get; } = new();
         internal ConcurrentDictionary<(Type Source, Type Target), ConcurrentDictionary<string, Func<object, bool>>> ConditionalMappings { get; } = new();
@@ -44,53 +29,36 @@ namespace JMSAutoMapper.Configuration
         internal ConcurrentDictionary<(Type Source, Type Target, string Property), object> ValueResolvers { get; } = new();
         internal ConcurrentDictionary<(Type Source, Type Target, string Property), object> AsyncValueResolvers { get; } = new();
 
-        /// <summary>Inicializa uma nova instância de MapperConfiguration.</summary>
-        public MapperConfiguration() { }
-
-        /// <summary>Inicializa uma nova instância de MapperConfiguration com uma ação de configuração.</summary>
-        /// <param name="configure">Ação para configurar o mapeador.</param>
-        public MapperConfiguration(Action<MapperConfiguration> configure)
-        {
-            configure(this);
-        }
-
-        /// <summary>Convenção de nomenclatura para mapeamento automático.</summary>
         public Func<string, string> NamingConvention { get; set; } = name => name;
-
-        /// <summary>Se deve lançar exceção em erro de conversão.</summary>
         public bool ThrowOnConversionError { get; set; } = true;
-
-        /// <summary>Política global para valores nulos em tipos de valor no destino.</summary>
-        public NullValueMappingPolicy NullValueMappingStrategy { get; set; } = NullValueMappingPolicy.Default;
-
-        /// <summary>Se deve criar mapeamentos de tipos ausentes automaticamente.</summary>
-        public bool CreateMissingTypeMaps { get; set; } = false;
-
-        /// <summary>Profundidade máxima de mapeamento (previne loops infinitos).</summary>
         public int MaxDepth { get; set; } = 10;
-
-        /// <summary>Tipo de lista de membros para validação.</summary>
         public MemberListType ValidateMemberList { get; set; } = MemberListType.Destination;
-
-        /// <summary>Tempo de expiração do cache (minutos).</summary>
-        public int CacheExpirationMinutes { get; set; } = 30;
-
-        /// <summary>Habilitar diagnóstico.</summary>
         public bool EnableDiagnostics { get; set; } = true;
-
-        /// <summary>Habilitar cache distribuído.</summary>
         public bool EnableDistributedCache { get; set; } = false;
-
-        /// <summary>Habilitar cache estático para tipos marcados com [Cacheable].</summary>
+        public bool ValidateOnBuild { get; set; } = false;
+        public int CacheExpirationMinutes { get; set; } = 30;
+        public global::JMSAutoMapper.NullValueMappingPolicy NullValueMappingStrategy { get; set; } = global::JMSAutoMapper.NullValueMappingPolicy.Throw;
         public bool EnableStaticCache { get; set; } = true;
 
-        /// <summary>Validação automática após configuração.</summary>
-        public bool ValidateOnBuild { get; set; } = false;
+        public MapperConfiguration() { }
+
+        public MapperConfiguration(Action<MapperConfiguration> configure)
+        {
+            configure?.Invoke(this);
+        }
 
         /// <summary>
-        /// Adiciona um perfil de configuração.
+        /// Registra um novo mapeamento e valida se a configuração não está selada.
         /// </summary>
-        /// <typeparam name="TProfile">Tipo do perfil.</typeparam>
+        public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
+        {
+            ThrowIfSealed();
+            return new MappingExpression<TSource, TDestination>(this);
+        }
+
+        /// <summary>
+        /// Adiciona um perfil de configuração pelo tipo.
+        /// </summary>
         public void AddProfile<TProfile>() where TProfile : Profile, new()
         {
             var profile = new TProfile();
@@ -98,100 +66,53 @@ namespace JMSAutoMapper.Configuration
         }
 
         /// <summary>
-        /// Adiciona um perfil de configuração.
+        /// Adiciona um perfil mesclando as configurações via extensões de dicionário.
         /// </summary>
-        /// <param name="profile">Instância do perfil.</param>
         public void AddProfile(Profile profile)
         {
-            MergeDictionaries(profile.Configuration.CustomMappings, CustomMappings);
-            MergeDictionaries(profile.Configuration.AsyncCustomMappings, AsyncCustomMappings);
-            MergeDictionaries(profile.Configuration.CustomMappingExpressions, CustomMappingExpressions);
-            MergeDictionaries(profile.Configuration.PropertyMappings, PropertyMappings);
-            MergeDictionaries(profile.Configuration.ConditionalMappings, ConditionalMappings);
-            MergeDictionaries(profile.Configuration.AsyncConditionalMappings, AsyncConditionalMappings);
-
+            ThrowIfSealed();
+            
+            CustomMappings.MergeNested(profile.Configuration.CustomMappings);
+            AsyncCustomMappings.MergeNested(profile.Configuration.AsyncCustomMappings);
+            CustomMappingExpressions.MergeNested(profile.Configuration.CustomMappingExpressions);
+            PropertyMappings.MergeNested(profile.Configuration.PropertyMappings);
+            ConditionalMappings.MergeNested(profile.Configuration.ConditionalMappings);
+            
             foreach (var ignored in profile.Configuration.IgnoredProperties)
                 IgnoredProperties.TryAdd(ignored.Key, 0);
 
-            MergeDictionaries(profile.Configuration.ConstructorSelection, ConstructorSelection);
-            MergeDictionaries(profile.Configuration.BeforeMapActions, BeforeMapActions);
-            MergeDictionaries(profile.Configuration.AfterMapActions, AfterMapActions);
-            MergeDictionaries(profile.Configuration.CustomConstructors, CustomConstructors);
-            MergeDictionaries(profile.Configuration.TypeConverters, TypeConverters);
-            MergeDictionaries(profile.Configuration.ValueResolvers, ValueResolvers);
-            MergeDictionaries(profile.Configuration.AsyncValueResolvers, AsyncValueResolvers);
+            ConstructorSelection.Merge(profile.Configuration.ConstructorSelection);
+            BeforeMapActions.MergeLists(profile.Configuration.BeforeMapActions);
+            AfterMapActions.MergeLists(profile.Configuration.AfterMapActions);
+            CustomConstructors.Merge(profile.Configuration.CustomConstructors);
         }
 
-        private void MergeDictionaries<TKey, TValue>(ConcurrentDictionary<TKey, TValue> source, ConcurrentDictionary<TKey, TValue> target) where TKey : notnull
-        {
-            foreach (var kvp in source)
-            {
-                target.AddOrUpdate(kvp.Key, kvp.Value, (_, __) => kvp.Value);
-            }
-        }
-
-        private void MergeDictionaries<TKey, TSubKey, TValue>(
-            ConcurrentDictionary<TKey, ConcurrentDictionary<TSubKey, TValue>> source,
-            ConcurrentDictionary<TKey, ConcurrentDictionary<TSubKey, TValue>> target) where TKey : notnull where TSubKey : notnull
-        {
-            foreach (var kvp in source)
-            {
-                var targetDict = target.GetOrAdd(kvp.Key, _ => new ConcurrentDictionary<TSubKey, TValue>());
-                foreach (var subKvp in kvp.Value)
-                {
-                    targetDict.AddOrUpdate(subKvp.Key, subKvp.Value, (_, __) => subKvp.Value);
-                }
-            }
-        }
-
-        private void MergeDictionaries<TKey, TValue>(ConcurrentDictionary<TKey, List<TValue>> source, ConcurrentDictionary<TKey, List<TValue>> target) where TKey : notnull
-        {
-            foreach (var kvp in source)
-            {
-                var targetList = target.GetOrAdd(kvp.Key, _ => new List<TValue>());
-                lock (targetList)
-                {
-                    targetList.AddRange(kvp.Value);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Adiciona todos os perfis de um assembly.
-        /// </summary>
-        /// <param name="assembly">Assembly contendo os perfis.</param>
         public void AddProfilesFromAssembly(Assembly assembly)
         {
             var profileTypes = assembly.GetTypes()
-                .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(Profile)))
-                .ToList();
+                .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(Profile)));
 
-            foreach (var profileType in profileTypes)
+            foreach (var type in profileTypes)
             {
-                var profile = (Profile)Activator.CreateInstance(profileType)!;
-                AddProfile(profile);
+                AddProfile((Profile)Activator.CreateInstance(type)!);
             }
         }
 
         /// <summary>
-        /// Cria expressão de mapeamento.
-        /// </summary>
-        /// <typeparam name="TSource">Tipo da origem.</typeparam>
-        /// <typeparam name="TDestination">Tipo do destino.</typeparam>
-        public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>() => new MappingExpression<TSource, TDestination>(this);
-
-        /// <summary>
-        /// Valida configuração.
+        /// Ponto de entrada para validação de configuração.
         /// </summary>
         internal void AssertConfigurationIsValidInternal()
         {
-            var validator = new ConfigurationValidator(this);
-            validator.Validate();
+            new ConfigurationValidator(this).Validate();
         }
 
         /// <summary>
-        /// Cria instância do mapper.
+        /// Cria o Mapper e sela a configuração para garantir imutabilidade e performance.
         /// </summary>
-        public IMapper CreateMapper() => new JMSMapper(this);
+        public IMapper CreateMapper()
+        {
+            Seal();
+            return new JMSMapper(this);
+        }
     }
 }

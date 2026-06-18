@@ -3,6 +3,14 @@ using System;
 
 namespace JMSAutoMapper.Core
 {
+    internal enum PropertyMapKind
+    {
+        Simple,
+        Nested,
+        Collection,
+        Custom
+    }
+
     internal class PropertyMap
     {
         public string SourceName { get; init; } = string.Empty;
@@ -14,5 +22,7 @@ namespace JMSAutoMapper.Core
         public Func<object, IMapper, object?>? CustomResolver { get; init; }
         public Func<object, bool>? Condition { get; init; }
         public bool Ignore { get; init; }
+        public PropertyMapKind Kind { get; set; } = PropertyMapKind.Simple;
+        public Func<object, IMapper, Dictionary<object, object>, object?>? NestedMapper { get; set; }
     }
 }
