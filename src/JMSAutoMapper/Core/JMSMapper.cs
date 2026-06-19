@@ -2650,7 +2650,11 @@ namespace JMSAutoMapper.Core
                         var sourceIsNull = Expression.Equal(sourcePropertyAccess, Expression.Constant(null, sourcePropertyAccess.Type));
                         if (isNonNullableValueTypeDest)
                         {
-                            if (_config.NullValueMappingStrategy == NullValueMappingPolicy.Throw)
+                            if (targetProperty.PropertyType.IsEnum)
+                            {
+                                propertyMappingExpression = Expression.IfThen(Expression.Not(sourceIsNull), assignment);
+                            }
+                            else if (_config.NullValueMappingStrategy == NullValueMappingPolicy.Throw)
                             {
                                 propertyMappingExpression = Expression.IfThenElse(sourceIsNull, Expression.Throw(Expression.New(typeof(global::JMSAutoMapper.MappingException).GetConstructor(new[] { typeof(string) })!, Expression.Constant($"Falha ao mapear '{targetProperty.Name}': Valor de origem é nulo para um tipo de valor não anulável '{targetProperty.PropertyType.Name}'. Para mudar este comportamento, altere NullValueMappingStrategy."))), assignment);
                             }
